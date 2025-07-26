@@ -43,6 +43,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "sequelize-cli": "^6.6.3"
   }
 }
