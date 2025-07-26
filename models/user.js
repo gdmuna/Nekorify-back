@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     name: {
-      type: DataTypes.STRING(11),
+      type: DataTypes.STRING,
       allowNull: false
     },
     sso_id: {
