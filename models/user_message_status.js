@@ -42,9 +42,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User_message_status',
+    tableName: 'user_message_statuses', // 设置表名
     paranoid: true, // 启用软删除
     deletedAt: 'deletedAt', // 设置软删除字段名
-    index: [
+    indexes: [
       {
         fields: ['user_id']
       },

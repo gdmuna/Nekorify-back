@@ -46,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+    tableName: 'users',
     paranoid: true, // 启用软删除
     deletedAt: 'deletedAt',// 设置软删除字段名
     indexes: [

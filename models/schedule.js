@@ -45,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Schedule',
+    tableName: 'schedules', // 设置表名
     paranoid: true, // 启用软删除
     deletedAt: 'deletedAt', // 设置软删除字段名
     indexes: [
