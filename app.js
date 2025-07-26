@@ -20,12 +20,7 @@ app.use(cookieParser());
 
 //允许跨域访问
 const cors = require('cors');
-app.use(
-    cors({
-        origin: '*',
-        methods: ['GET', 'POST', 'PUT', 'DELETE']
-    })
-);
+app.use(cors());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
