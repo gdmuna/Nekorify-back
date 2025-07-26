@@ -14,16 +14,46 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Announcement.init({
-    title: DataTypes.STRING,
-    cover_url: DataTypes.STRING,
-    author: DataTypes.STRING,
-    department: DataTypes.STRING,
-    text_md_url: DataTypes.STRING,
-    views: DataTypes.INTEGER,
-    is_deleted: DataTypes.BOOLEAN,
+    title: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    cover_url: {
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    author: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    department: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    text_md_url: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    views: {
+      allowNull: false,
+      defaultValue: false,
+      type: DataTypes.INTEGER
+    },
+    deletedAt: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
   }, {
     sequelize,
     modelName: 'Announcement',
+    paranoid: true, // 启用软删除
+    deletedAt: 'deletedAt', // 设置软删除字段名
+    indexes: [
+      {
+        unique: true,
+        fields: ['title', 'author']
+      }
+    ]
   });
   return Announcement;
 };

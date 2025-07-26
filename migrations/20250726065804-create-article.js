@@ -10,22 +10,32 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       title: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       cover_url: {
+        allowNull: true,
         type: Sequelize.STRING
       },
       author: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       department: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       text_md_url: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       views: {
+        allowNull: false,
         type: Sequelize.INTEGER
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

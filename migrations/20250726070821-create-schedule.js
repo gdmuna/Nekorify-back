@@ -10,22 +10,32 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       year: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       month: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       day: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       time: {
+        allowNull: false,
         type: Sequelize.DATE
       },
       department: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       plan: {
+        allowNull: false,
         type: Sequelize.TEXT
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

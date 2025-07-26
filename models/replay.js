@@ -14,14 +14,41 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Replay.init({
-    title: DataTypes.STRING,
-    department: DataTypes.STRING,
-    video_url: DataTypes.TEXT,
-    cover_url: DataTypes.STRING,
-    views: DataTypes.STRING
+    title: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    department: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    video_url: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
+    cover_url: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    views: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    deletedAt: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
   }, {
     sequelize,
     modelName: 'Replay',
+    paranoid: true, // 启用软删除 
+    deletedAt: 'deletedAt', // 设置软删除字段名
+    indexes: [
+      {
+        unique: true,
+        fields: ['title', 'video_url', 'cover_url']
+      }
+    ]
   });
   return Replay;
 };

@@ -9,17 +9,33 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      stu_id: {
-        type: Sequelize.STRING(11)
+      user_id: {
+        allowNull: false,
+        type: Sequelize.STRING(11),
+        references: {
+          model: 'Users',
+          key: 'stu_id'
+        }, 
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       message_id: {
-        type: Sequelize.INTEGER
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Messages',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       is_read: {
+        allowNull: false,
         type: Sequelize.BOOLEAN
       },
-      is_deleted: {
-        type: Sequelize.BOOLEAN
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

@@ -14,10 +14,24 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Message.init({
-    name: DataTypes.INTEGER
+    name: {
+      allowNull: false,
+      type: DataTypes.INTEGER
+    },
+    deletedAt: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
   }, {
     sequelize,
     modelName: 'Message',
+    paranoid: true, // 启用软删除
+    deletedAt: 'deletedAt', // 设置软删除字段名
+    indexes: [
+      {
+        fields: ['name']
+      }
+    ]
   });
   return Message;
 };

@@ -10,22 +10,31 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       stu_id: {
+        allowNull: false,
         type: Sequelize.STRING(11)
       },
       name: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       sso_id: {
+        allowNull: false,
         type: Sequelize.UUID
       },
-      is_forbidden: {
-        type: Sequelize.BOOLEAN
-      },
       last_signin_time: {
+        allowNull: true,
         type: Sequelize.DATE
       },
-      is_active: {
-        type: Sequelize.BOOLEAN
+      // 用于标记用户是否被冻结
+      is_frozen: {
+        allowNull: false,
+        defaultValue: false,
+        type: Sequelize.BOOLEAN,
+        comment: '用于标记用户是否被冻结'
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

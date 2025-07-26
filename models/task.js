@@ -14,15 +14,44 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Task.init({
-    title: DataTypes.STRING,
-    text: DataTypes.TEXT,
-    publisher: DataTypes.STRING,
-    executor: DataTypes.STRING,
-    start_time: DataTypes.DATE,
-    ddl: DataTypes.DATE
+    title: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    text: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
+    publisher: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    executor: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    start_time: {
+      allowNull: false,
+      type: DataTypes.DATE
+    },
+    ddl: {
+      allowNull: false,
+      type: DataTypes.DATE
+    },
+    deletedAt: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
   }, {
     sequelize,
     modelName: 'Task',
+    paranoid: true, // 启用软删除
+    deletedAt: 'deletedAt', // 设置软删除字段名
+    indexes: [
+      {
+        fields: ['executor'],
+      }
+    ],
   });
   return Task;
 };
