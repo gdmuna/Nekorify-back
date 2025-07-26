@@ -3,7 +3,27 @@
   "version": "0.0.0-1",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start:dev": "cross-env NODE_ENV=development nodemon ./bin/www",
+    "start:test": "cross-env NODE_ENV=test nodemon ./bin/www",
+    "start:prod": "cross-env NODE_ENV=production nodemon ./bin/www",
+    "db:setup:dev": "npm run db:create:dev && npm run db:migrate:dev && npm run db:seed:dev",
+    "db:setup:test": "npm run db:create:test && npm run db:migrate:test && npm run db:seed:test",
+    "db:setup:prod": "npm run db:create:prod && npm run db:migrate:prod && npm run db:seed:prod",
+    "db:reset:dev": "npm run db:drop:dev && npm run db:setup:dev",
+    "db:reset:test": "npm run db:drop:test && npm run db:setup:test",
+    "db:reset:prod": "npm run db:drop:prod && npm run db:setup:prod",
+    "db:create:dev": "cross-env NODE_ENV=development sequelize-cli db:create --charset utf8mb4 --collate utf8mb4_general_ci",
+    "db:create:test": "cross-env NODE_ENV=test sequelize-cli db:create --charset utf8mb4 --collate utf8mb4_general_ci",
+    "db:create:prod": "cross-env NODE_ENV=production sequelize-cli db:create --charset utf8mb4 --collate utf8mb4_general_ci",
+    "db:migrate:dev": "cross-env NODE_ENV=development sequelize-cli db:migrate",
+    "db:migrate:test": "cross-env NODE_ENV=test sequelize-cli db:migrate",
+    "db:migrate:prod": "cross-env NODE_ENV=production sequelize-cli db:migrate",
+    "db:seed:dev": "cross-env NODE_ENV=development sequelize-cli db:seed:all",
+    "db:seed:test": "cross-env NODE_ENV=test sequelize-cli db:seed:all",
+    "db:seed:prod": "cross-env NODE_ENV=production sequelize-cli db:seed:all",
+    "db:drop:dev": "cross-env NODE_ENV=development sequelize-cli db:drop",
+    "db:drop:test": "cross-env NODE_ENV=test sequelize-cli db:drop",
+    "db:drop:prod": "cross-env NODE_ENV=production sequelize-cli db:drop"
   },
   "dependencies": {
     "alova": "^3.3.4",

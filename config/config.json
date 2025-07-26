@@ -1,23 +1,27 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "database_development",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "Nekorify",
+    "password": "njkr3SyEtZ6XrKPZhull",
+    "database": "Nekorify",
+    "host": "10.5.20.36",
+    "dialect": "mariadb",
+    "timezone": "+08:00"
+    
   },
   "test": {
     "username": "root",
     "password": null,
     "database": "database_test",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mariadb",
+    "timezone": "+08:00"
   },
   "production": {
     "username": "root",
     "password": null,
     "database": "database_production",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mariadb",
+    "timezone": "+08:00"
   }
 }
