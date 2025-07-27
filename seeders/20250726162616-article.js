@@ -8,6 +8,7 @@ module.exports = {
 
   for (let i = 1; i <= counts; i++) {
     const article = {
+      author_id: i,
       title: `文章标题${i}`,
       cover_url: `https://cover${i}`,
       author: `作者${i}`,

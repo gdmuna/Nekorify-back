@@ -10,38 +10,45 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Article.belongsTo(models.User, {
+        foreignKey: 'author_id',
+        targetKey: 'id'
+      });
     }
   }
   Article.init({
+    author_id: {
+      allowNull: false,
+      type: DataTypes.INTEGER
+    },
     title: {
-        allowNull: false,
-        type: DataTypes.STRING
-      },
-      cover_url: {
-        allowNull: true,
-        type: DataTypes.STRING
-      },
-      author: {
-        allowNull: false,
-        type: DataTypes.STRING
-      },
-      department: {
-        allowNull: false,
-        type: DataTypes.STRING
-      },
-      text_md_url: {
-        allowNull: false,
-        type: DataTypes.STRING
-      },
-      views: {
-        allowNull: false,
-        type: DataTypes.INTEGER
-      },
-      deletedAt: {
-        allowNull: true,
-        type: DataTypes.DATE
-      },
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    cover_url: {
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    author: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    department: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    text_md_url: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    views: {
+      allowNull: false,
+      type: DataTypes.INTEGER
+    },
+    deletedAt: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
   }, {
     sequelize,
     modelName: 'Article',
@@ -49,6 +56,12 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true, // 启用软删除
     deletedAt: 'deletedAt', // 设置软删除字段名
     indexes: [
+      {
+        fields: ['author_id']
+      },
+      {
+        fields: ['author_id', 'id']
+      },
       {
         unique: true,
         fields: ['title', 'author']
