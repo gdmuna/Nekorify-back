@@ -1,4 +1,4 @@
-const e = require('express');
+const express = require('express');
 const casdoor = require('../config/casdoorConfigs');
 
 module.exports = async (req, res, next) => {
