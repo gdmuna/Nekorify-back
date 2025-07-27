@@ -1,11 +1,10 @@
-const casdoor = require('../config/casdoorConfig');
+const casdoor = require('../config/casdoorConfigs');
 
 exports.handleCallBack = async function(code) {
     try {
             const TokenResponse = await casdoor.getAuthToken(code);
             console.log('获取到的Token响应:', TokenResponse);
             const JWTtoken = TokenResponse.access_token;
-            //console.log('获取到的JWT Token:', JWTtoken);
             if (!JWTtoken) {
             throw new Error('获取OAuth URL失败');
             }
@@ -16,13 +15,14 @@ exports.handleCallBack = async function(code) {
             }
             return {
                 success: true,
+                token: TokenResponse,
                 userInfo: userInfo,
             };
     } catch (error) {
             console.error('登录失败:', error);
             return {
                 success: false,
-                message: error.message || '登录失败，请稍后再试'
+                message: error.response.data.error_description || '登录失败，请稍后再试',
             };
     }
 };
