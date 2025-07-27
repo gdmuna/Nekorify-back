@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "Nekorify",
-    "password": "njkr3SyEtZ6XrKPZhull",
+    "password": "jkr3SyEtZ6XrKPZh",
     "database": "Nekorify",
     "host": "10.5.20.36",
     "dialect": "mariadb",

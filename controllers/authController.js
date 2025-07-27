@@ -1,4 +1,4 @@
-const casdoor = require('../config/casdoorconfig');
+const casdoor = require('../config/casdoorConfigs');
 const casdoorUtils = require('../utils/casdoorUtils');
 
 
