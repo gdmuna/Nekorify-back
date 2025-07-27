@@ -6,9 +6,10 @@ const cros = require('cors');
 require('dotenv').config();
 const session = require('express-session');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
+const articleRouter = require('./routes/article');
 
 var app = express();
 
@@ -25,5 +26,6 @@ app.use(cors());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
+app.use('/article', articleRouter);
 
 module.exports = app;
