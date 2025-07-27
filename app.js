@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
+const errorHandler = require('./middlewares/errorHandleMiddleware');
 require('dotenv').config();
 
 const router = require('./routes/index');
