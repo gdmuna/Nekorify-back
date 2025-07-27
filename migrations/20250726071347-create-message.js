@@ -9,9 +9,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      text: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.TEXT
       },
       deletedAt: {
         allowNull: true,

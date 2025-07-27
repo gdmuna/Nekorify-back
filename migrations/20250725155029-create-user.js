@@ -11,7 +11,7 @@ module.exports = {
       },
       stu_id: {
         allowNull: false,
-        type: Sequelize.STRING(11)
+        type: Sequelize.STRING(16)
       },
       name: {
         allowNull: false,
