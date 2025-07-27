@@ -1,31 +1,21 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const cros = require('cors');
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
 require('dotenv').config();
-const session = require('express-session');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const authRouter = require('./routes/auth');
-const articleRouter = require('./routes/article');
+const router = require('./routes/index');
 
-var app = express();
+const app = express();
 
+//允许跨域访问
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.use('/', router);
 
-//允许跨域访问
-const cors = require('cors');
-app.use(cors());
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/auth', authRouter);
-app.use('/article', articleRouter);
 
 module.exports = app;

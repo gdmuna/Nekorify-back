@@ -4,4 +4,5 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const articleController = require('../controllers/articleController.js');
 
 router.get('/',articleController.getAllArticles);
+
 module.exports = router;
