@@ -6,6 +6,7 @@ const errorHandler = require('./middlewares/errorHandleMiddleware');
 require('dotenv').config();
 
 const router = require('./routes/index');
+const e = require('express');
 
 const app = express();
 
@@ -18,5 +19,5 @@ app.use(cookieParser());
 
 app.use('/api', router);
 
-
+app.use(errorHandler);
 module.exports = app;

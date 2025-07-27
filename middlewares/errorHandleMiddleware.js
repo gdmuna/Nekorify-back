@@ -6,6 +6,7 @@
  * @param {NextFunction} next - 下一个中间件函数
  */
 function errorHandler(err, req, res, next) {
+    console.log(err); // 打印错误信息到控制台
   // 默认错误响应
   let errorResponse = {
     success: false,
