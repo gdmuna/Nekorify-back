@@ -1,10 +1,17 @@
+// 内置模块
+require('dotenv').config();
+
+// 第三方中间件
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
-const errorHandler = require('./middlewares/errorHandleMiddleware');
-require('dotenv').config();
 
+// 自定义中间件
+const errorHandlerMiddleware = require('./middlewares/errorHandleMiddleware');
+const authMiddleware = require('./middlewares/authMiddleware');
+
+// 路由
 const router = require('./routes/index');
 
 const app = express();
@@ -16,7 +23,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+
+// 鉴权中间件
+app.use(authMiddleware);
+// 接口路由
 app.use('/api', router);
+// 错误处理中间件
+app.use(errorHandlerMiddleware);
 
 
 module.exports = app;
