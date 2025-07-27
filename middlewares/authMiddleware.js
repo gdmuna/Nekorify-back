@@ -1,9 +1,20 @@
-const e = require('express');
 const casdoor = require('../config/casdoorConfigs');
 
+// 路由白名单
+const whiteList = [
+  /^\/api\/login/,
+];
+
+// 白名单函数
+function isWhiteListed(path) {
+  return whiteList.some(item =>
+    typeof item === 'string' ? item === path : item.test(path)
+  );
+}
+
+// 鉴权中间件
 module.exports = async (req, res, next) => {
   try {
-
     // 获取 Authorization 头
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
