@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Message.init({
-    name: {
+    text: {
       allowNull: false,
-      type: DataTypes.INTEGER
+      type: DataTypes.TEXT
     },
     deletedAt: {
       allowNull: true,
