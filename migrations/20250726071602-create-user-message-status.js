@@ -2,35 +2,36 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('user_message_statuses', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      stu_id: {
+      user_id: {
         allowNull: false,
-        type: Sequelize.STRING(11)
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'users',
+          key: 'id'
+        }, 
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      name: {
+      message_id: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'messages',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      sso_id: {
+      is_read: {
         allowNull: false,
-        type: Sequelize.UUID
-      },
-      last_signin_time: {
-        allowNull: true,
-        type: Sequelize.DATE
-      },
-      // 用于标记用户是否被冻结
-      is_frozen: {
-        allowNull: false,
-        defaultValue: false,
-        type: Sequelize.BOOLEAN,
-        comment: '用于标记用户是否被冻结'
+        type: Sequelize.BOOLEAN
       },
       deletedAt: {
         allowNull: true,
@@ -47,6 +48,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('User_message_statuses');
   }
 };

@@ -2,35 +2,37 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('announcements', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      stu_id: {
-        allowNull: false,
-        type: Sequelize.STRING(11)
-      },
-      name: {
+      title: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      sso_id: {
-        allowNull: false,
-        type: Sequelize.UUID
-      },
-      last_signin_time: {
+      cover_url: {
         allowNull: true,
-        type: Sequelize.DATE
+        type: Sequelize.STRING
       },
-      // 用于标记用户是否被冻结
-      is_frozen: {
+      author: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      department: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      text_md_url: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      views: {
         allowNull: false,
         defaultValue: false,
-        type: Sequelize.BOOLEAN,
-        comment: '用于标记用户是否被冻结'
+        type: Sequelize.INTEGER
       },
       deletedAt: {
         allowNull: true,
@@ -47,6 +49,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('Announcements');
   }
 };

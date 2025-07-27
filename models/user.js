@@ -10,19 +10,55 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.hasMany(models.User_message_status, {
+        foreignKey: 'user_id',
+        sourceKey: 'id'
+      });
     }
   }
   User.init({
-    stu_id: DataTypes.STRING(11),
-    name: DataTypes.STRING,
-    sso_id: DataTypes.UUID,
-    is_forbidden: DataTypes.BOOLEAN,
-    last_signin_time: DataTypes.DATE,
-    is_active: DataTypes.BOOLEAN
+    stu_id: {
+      type: DataTypes.STRING(11),
+      allowNull: false
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    sso_id: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
+    last_signin_time: {
+      allowNull: true,
+      type: DataTypes.DATE,
+    },
+    is_frozen: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: '用于标记用户是否被冻结'
+    },
+    deletedAt: {
+      allowNull: true,
+      type: DataTypes.DATE
+    }
   }, {
     sequelize,
     modelName: 'User',
+    tableName: 'users',
+    paranoid: true, // 启用软删除
+    deletedAt: 'deletedAt',// 设置软删除字段名
+    indexes: [
+      {
+        unique: true,
+        fields: ['stu_id']
+      },
+      {
+        unique: true,
+        fields: ['sso_id']
+      }
+    ]
   });
   return User;
 };
