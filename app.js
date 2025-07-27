@@ -13,7 +13,7 @@ const authMiddleware = require('./middlewares/authMiddleware');
 
 // 路由
 const router = require('./routes/index');
-const e = require('express');
+
 
 const app = express();
 
@@ -31,6 +31,4 @@ app.use(authMiddleware);
 app.use('/api', router);
 // 错误处理中间件
 app.use(errorHandlerMiddleware);
-
-app.use(errorHandler);
 module.exports = app;
