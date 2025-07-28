@@ -6,13 +6,13 @@ const AppError = require('../utils/AppError');
  */
 
 // 获取消息列表接口
-exports.getMessages = async (query) => {
+exports.getMessages = async (userId) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
-    // 校验id是否为数字
+    // 校验userId是否为数字
     if (query.id && isNaN(Number(query.id))) {
         throw new AppError('消息ID输入错误', 400, 'INVALID_MESSAGE_ID');
     }
