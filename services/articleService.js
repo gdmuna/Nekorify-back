@@ -42,10 +42,10 @@ exports.getArticles = async (query) => {
 
     return {
         pagination: {
-            currentPage,
-            pageSize,
-            totalRecords: count,
-            totalPages,
+            currentPage,             // 当前页
+            pageSize,                // 每页记录数
+            totalRecords: count,     // 总记录数
+            totalPages,              // 总页数   
         },
         articles
     };

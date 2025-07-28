@@ -3,10 +3,12 @@ const router = express.Router();
 const usersRouter = require('./users');
 const authRouter = require('./auth');
 const articleRouter = require('./article');
+const announcementRouter = require('./announcement');
 
 router.use('/users', usersRouter);
 router.use('/auth', authRouter);
 router.use('/article', articleRouter);
+router.use('/announcement', announcementRouter);
 
 
 module.exports = router;

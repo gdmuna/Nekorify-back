@@ -3,7 +3,8 @@ const casdoor = require('../config/casdoorConfigs');
 // 路由白名单
 const whiteList = [
   /^\/api\/auth/,
-  /^\/api\/article/
+  /^\/api\/announcement/,
+  /^\/api\/article/,
 ];
 
 // 白名单函数

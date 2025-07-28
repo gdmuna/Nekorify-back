@@ -1,4 +1,4 @@
-// 内置模块
+// node.js内置模块
 require('dotenv').config();
 
 // 第三方中间件
@@ -15,7 +15,7 @@ const authMiddleware = require('./middlewares/authMiddleware');
 // 路由
 const router = require('./routes/index');
 
-
+// 实例化应用
 const app = express();
 // 成功响应中间件
 app.use(successResponse);
@@ -33,4 +33,5 @@ app.use(authMiddleware);
 app.use('/api', router);
 // 错误处理中间件
 app.use(errorHandlerMiddleware);
+
 module.exports = app;
