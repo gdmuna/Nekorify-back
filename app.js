@@ -9,6 +9,7 @@ const cors = require('cors');
 
 // 自定义中间件
 const errorHandlerMiddleware = require('./middlewares/errorHandleMiddleware');
+const successResponse = require('./middlewares/successPresponse');
 const authMiddleware = require('./middlewares/authMiddleware');
 
 // 路由
@@ -16,7 +17,8 @@ const router = require('./routes/index');
 
 // 实例化应用
 const app = express();
-
+// 成功响应中间件
+app.use(successResponse);
 //允许跨域访问
 app.use(cors());
 app.use(logger('dev'));

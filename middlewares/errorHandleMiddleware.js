@@ -10,9 +10,11 @@ function errorHandler(err, req, res, next) {
   // 默认错误响应
   let errorResponse = {
     success: false,
-    message: err.message || 'Internal Server Error',
-    code: err.code || 'INTERNAL_ERROR',
-    details: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    data:{
+      message: err.message || 'Internal Server Error',
+      code: err.code || 'INTERNAL_ERROR',
+      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    }
   };
 
   let statusCode = 500; // 默认状态码

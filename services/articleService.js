@@ -50,3 +50,24 @@ exports.getArticles = async (query) => {
         articles
     };
 };
+
+
+
+exports.updateArticle = async (articleId, updateData) => {
+    // 校验ID
+    if (!articleId || isNaN(Number(articleId))) {
+        throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
+    }
+
+    // 查找文章
+    const article = await Article.findByPk(articleId);
+    if (!article) {
+        throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
+    }
+
+    // 更新文章
+    await article.update(updateData);
+
+    // 返回更新后的文章
+    return article;
+};
