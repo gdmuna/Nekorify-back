@@ -22,9 +22,22 @@ exports.getAllArticles = async (req, res, next) => {
 exports.updateArticle = async (req, res, next) => {
     try {
         const articleId = req.params.id;
-        const updateUrl = req.body.updateUrl;
-        const result = await articleService.updateArticle(articleId, updateUrl);
+        const updateUrl = req.body.updateUrl; 
+        const stuId = req.user.stu_id; 
+        const result = await articleService.updateArticle(articleId, updateUrl, stuId);
         return res.success(result, '文章修改成功', 'ARTICLE_UPDATED');
+    } catch (error) {
+        next(error);
+    }
+};
+
+// 删除文章接口(软删除)
+exports.deleteArticle = async (req, res, next) => {
+    try {
+        const articleId = req.params.id;
+        const stuId = req.user.stu_id; 
+        await articleService.deleteArticle(articleId, stuId);
+        return res.success(null, '文章删除成功', 'ARTICLE_DELETED');
     } catch (error) {
         next(error);
     }
