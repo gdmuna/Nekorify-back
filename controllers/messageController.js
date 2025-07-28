@@ -7,8 +7,7 @@ const messageService = require('../services/messageService');
 // 获取消息列表接口
 exports.getMessages = async (req, res, next) => {
     try {
-        const userId = req.params.userId;
-        const result = await messageService.getMessages(userId);
+        const result = await messageService.getMessages(req.params.userId);
         if (!result.messages || result.messages.length === 0) {
             return res.success(result, '没有查询到相关消息', 'NO_MESSAGE');
         }
