@@ -1,8 +1,9 @@
-const { Announcement } = require('../models');
+const { Announcement, User } = require('../models');
+const AppError = require('../utils/AppError');
 
-// 获取所有公告
-exports.getAllAnnouncements = async (query) => {
-    // 分页参数
+// 获取公告列表接口
+exports.getAnnouncements = async (query) => {
+    // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
