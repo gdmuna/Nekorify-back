@@ -53,7 +53,7 @@ exports.getArticles = async (query) => {
 
 
 
-exports.updateArticle = async (articleId, updateData) => {
+exports.updateArticle = async (articleId, updateUrl) => {
     // 校验ID
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
@@ -65,8 +65,18 @@ exports.updateArticle = async (articleId, updateData) => {
         throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
     }
 
-    // 更新文章
-    await article.update(updateData);
+    const userInfo = await User.findByPk(article.author_id);
+    if(userInfo.stu_id !== req.user.stu_id) {
+        throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
+    }
+    // 只更新 text_md_url 字段
+   
+    if (!updateUrl) {
+        throw new AppError('缺少 updateUrl', 400, 'MISSING_TEXT_MD_URL');
+    }
+
+    article.text_md_url = updateUrl;
+    await article.save();
 
     // 返回更新后的文章
     return article;

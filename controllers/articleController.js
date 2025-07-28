@@ -17,8 +17,8 @@ exports.getAllArticles = async (req, res, next) => {
 exports.updateArticle = async (req, res, next) => {
     try {
         const articleId = req.params.id;
-        const updateData = req.body;
-        const result = await articleService.updateArticle(articleId, updateData);
+        const updateUrl = req.body.updateUrl;
+        const result = await articleService.updateArticle(articleId, updateUrl);
         return res.success(result, '文章修改成功', 'ARTICLE_UPDATED');
     } catch (error) {
         next(error);
