@@ -1,5 +1,9 @@
 const { Article, User } = require('../models');
 const AppError = require('../utils/AppError');
+/**
+ * @description 文章服务
+ * @module services/articleService
+ */
 
 // 获取文章列表接口
 exports.getArticles = async (query) => {

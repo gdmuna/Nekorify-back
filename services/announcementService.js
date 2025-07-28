@@ -1,4 +1,8 @@
 const { Announcement } = require('../models');
+/**
+ * @description 公告服务
+ * @module services/announcementService
+ */
 
 // 获取公告列表接口
 exports.getAnnouncements = async (query) => {

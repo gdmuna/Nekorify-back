@@ -3,6 +3,7 @@ const scheduleService = require('../services/scheduleService');
  * @description 日程控制器
  * @module controllers/scheduleController
  */
+
 exports.getSchedules = async (req, res, next) => {
     try {
         const result = await scheduleService.getSchedules(req.query);

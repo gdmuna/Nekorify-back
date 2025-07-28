@@ -1,4 +1,8 @@
 const { Replay } = require('../models');
+/**
+ * @description 课程回放服务
+ * @module services/replayService
+ */
 
 // 获取课程回放列表接口
 exports.getReplays = async (query) => {
