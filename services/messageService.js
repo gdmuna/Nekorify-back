@@ -1,24 +1,61 @@
-const { User_message_status, Message } = require('../models');
+const { User_message_status, Message, User } = require('../models');
 const AppError = require('../utils/AppError');
 /**
  * @description 消息服务
  * @module services/messageService
  */
 
-// 获取消息列表接口
-exports.getMessages = async (userId) => {
+/**
+ * 获取消息列表接口
+ * @param {Object} [query] - 查询参数（可选）
+ * @param {string} [query.stuId] - 学生ID（可选）
+ * @param {boolean} [query.is_read] - 是否已读（可选）
+ * @param {number} [query.currentPage] - 当前页码（可选）
+ * @param {number} [query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Object>} 消息列表及分页信息
+ */
+exports.getMessages = async (query = {}) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
-    // 校验userId是否为数字
-    if (query.id && isNaN(Number(query.id))) {
-        throw new AppError('消息ID输入错误', 400, 'INVALID_MESSAGE_ID');
+    // 校验stuId是否为数字
+    if (query.stuId && isNaN(Number(query.stuId))) {
+        throw new AppError('学生ID输入错误', 400, 'INVALID_STUID');
     }
+
+    // 获取用户ID
+    let userId;
+    if (query.stuId) {
+        const userInfo = await User.findOne({ where: { stu_id: query.stuId } });
+        if (!userInfo) {
+            throw new AppError('获取用户失败 用户ID不存在', 404, 'USERID_NOT_FOUND');
+        }
+        userId = userInfo.id;
+    }
+
+    // 设置查询条件
+    const where = {}; // Message表的查询条件（可为空）
+
+    // 与user_message_status表关联查询，设置 user_message_status 的查询条件
+    const statusWhere = {};
+    if (userId) {
+        statusWhere.user_id = userId;
+    }
+    if (query.is_read !== undefined) {
+        statusWhere.is_read = query.is_read === 'true'; // 转换为布尔值
+    }
+    const include = [{
+        model: User_message_status,
+        where: statusWhere,
+        required: true // 关联查询
+    }];
 
     // 设置消息查询条件
     const condition = {
+        where,
+        include,
         order: [['createdAt', 'DESC']],
         offset,
         limit: pageSize,
@@ -33,10 +70,10 @@ exports.getMessages = async (userId) => {
 
     return {
         pagination: {
-            currentPage,             // 当前页
-            pageSize,                // 每页记录数
-            totalRecords: count,     // 总记录数
-            totalPages,              // 总页数   
+            currentPage,
+            pageSize,
+            totalRecords: count,
+            totalPages,
         },
         messages
     };

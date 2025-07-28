@@ -7,6 +7,8 @@ const messageController = require('../controllers/messageController.js');
  */
 
 // 获取消息列表
-router.get('/:user_id', messageController.getMessages);
+router.get('/:stuId', messageController.getMessages);
+router.get('/', messageController.getMessages);
+
 
 module.exports = router;

@@ -7,6 +7,7 @@ const announcementRouter = require('./announcement');
 const taskRouter = require('./task');
 const replayRouter = require('./replay');
 const scheduleRouter = require('./schedule');
+const messageRouter = require('./message');
 
 router.use('/users', usersRouter);
 router.use('/auth', authRouter);
@@ -15,6 +16,7 @@ router.use('/announcement', announcementRouter);
 router.use('/task', taskRouter);
 router.use('/replay', replayRouter);
 router.use('/schedule', scheduleRouter);
+router.use('/message', messageRouter);
 
 
 module.exports = router;

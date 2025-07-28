@@ -4,11 +4,19 @@ const messageService = require('../services/messageService');
  * @module controllers/messageController
  */
 
-// 获取消息列表接口
+/**
+ * 获取消息列表接口
+ * @param {Object} [query] - 查询参数（可选）
+ * @param {string} [query.stuId] - 学生ID（可选）
+ * @param {boolean} [query.is_read] - 是否已读（可选）
+ * @param {number} [query.currentPage] - 当前页码（可选）
+ * @param {number} [query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Object>} 消息列表及分页信息
+ */
 exports.getMessages = async (req, res, next) => {
     try {
-        const userId = req.params.userId;
-        const result = await messageService.getMessages(userId);
+        const query = req.query;
+        const result = await messageService.getMessages(query);
         if (!result.messages || result.messages.length === 0) {
             return res.success(result, '没有查询到相关消息', 'NO_MESSAGE');
         }
