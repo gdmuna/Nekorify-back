@@ -1,10 +1,18 @@
 const { Announcement } = require('../models');
+
 /**
  * @description 公告服务
  * @module services/announcementService
  */
 
-// 获取公告列表接口
+/**
+ * @description 获取公告列表接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.query - 查询参数（可选）
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Object>} 公告列表及分页信息
+ */
 exports.getAnnouncements = async (query) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
