@@ -8,9 +8,9 @@ const logger = require('morgan');
 const cors = require('cors');
 
 // 自定义中间件
-const errorHandlerMiddleware = require('./middlewares/errorHandleMiddleware');
-const successResponse = require('./middlewares/successPresponse');
-const authMiddleware = require('./middlewares/authMiddleware');
+const errorHandlerMiddleware = require('./middlewares/errorHandle');
+const successResponse = require('./middlewares/successResponse');
+const apiProtected = require('./middlewares/apiProtected');
 
 // 路由
 const router = require('./routes/index');
@@ -28,7 +28,7 @@ app.use(cookieParser());
 
 
 // 鉴权中间件
-app.use(authMiddleware);
+app.use(apiProtected);
 // 接口路由
 app.use('/api', router);
 // 错误处理中间件

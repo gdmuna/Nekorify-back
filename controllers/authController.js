@@ -55,3 +55,32 @@ exports.handelCallback = async (req, res) => {
         });
     }
 }
+
+//刷新Token
+exports.refreshToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.status(400).json({
+                success: false,
+                message: '缺少刷新令牌'
+            });
+        }
+
+        const result = await casdoorUtils.refreshAccessToken(refreshToken);
+        if (!result.success) {
+            return res.status(401).json({
+                success: false,
+                message: result.message || '刷新令牌失败'
+            });
+        }
+
+        res.json(result);
+    } catch (error) {
+        console.error('刷新令牌失败:', error);
+        res.status(500).json({
+            success: false,
+            message: '刷新令牌失败，请稍后再试'
+        });
+    }
+}
