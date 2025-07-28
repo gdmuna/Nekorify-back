@@ -1,4 +1,5 @@
 const { Article, User } = require('../models');
+const AppError = require('../utils/AppError');
 
 // 获取文章列表接口
 exports.getArticles = async (query) => {
@@ -9,7 +10,7 @@ exports.getArticles = async (query) => {
 
     // 校验stuId是否为数字
     if (query.stuId && isNaN(Number(query.stuId))) {
-        throw new Error('获取文章失败 学生ID输入错误');
+        throw new AppError('学生ID输入错误', 400, 'INVALID_STUID');
     }
 
     // 设置查询条件
@@ -19,7 +20,7 @@ exports.getArticles = async (query) => {
             where: { stu_id: query.stuId }
         });
         if (!userInfo) {
-            throw new Error('获取文章失败 学生ID不存在');
+            throw new AppError('获取文章失败 学生ID不存在', 404, 'STUID_NOT_FOUND');
         }
         where.author_id = userInfo.id; // 使用userId进行查询
     }

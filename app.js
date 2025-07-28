@@ -14,6 +14,7 @@ const authMiddleware = require('./middlewares/authMiddleware');
 // 路由
 const router = require('./routes/index');
 
+
 const app = express();
 
 //允许跨域访问
@@ -30,6 +31,4 @@ app.use(authMiddleware);
 app.use('/api', router);
 // 错误处理中间件
 app.use(errorHandlerMiddleware);
-
-
 module.exports = app;
