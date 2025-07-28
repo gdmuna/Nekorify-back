@@ -16,7 +16,7 @@ const AppError = require('../utils/AppError');
  * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Object>} 消息列表及分页信息
  */
-exports.getMessages = async (query = {}) => {
+exports.getMessages = async (query) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;

@@ -9,7 +9,7 @@ const { Replay } = require('../models');
  * @description 获取回放列表接口
  * @param {Object} req - 请求对象
  * @param {Object} req.query - 查询参数（可选）
- * @param {string} [req.query.courseId] - 课程ID（可选）       // 尚未实现
+ * @param {string} [req.query.department] - 开课部门（可选）     // 尚未实现
  * @param {number} [req.query.currentPage] - 当前页码（可选）
  * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Object>} 回放列表及分页信息
