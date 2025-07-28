@@ -1,11 +1,20 @@
 const { Task, User } = require('../models');
 const AppError = require('../utils/AppError');
+
 /**
  * @description 任务服务
  * @module services/taskService
  */
 
-// 获取任务列表接口
+/**
+ * @description 获取任务列表接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.query - 查询参数（可选）
+ * @param {string} [req.query.stuId] - 学生ID（可选）
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Object>} 任务列表及分页信息
+ */
 exports.getTasks = async (query) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;

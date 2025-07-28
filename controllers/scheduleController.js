@@ -1,9 +1,18 @@
 const scheduleService = require('../services/scheduleService');
+
 /**
  * @description 日程控制器
  * @module controllers/scheduleController
  */
 
+/**
+ * @description 获取日程列表接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.query - 查询参数（可选）
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Object>} 日程列表及分页信息
+ */
 exports.getSchedules = async (req, res, next) => {
     try {
         const result = await scheduleService.getSchedules(req.query);

@@ -1,9 +1,19 @@
 const taskService = require('../services/taskService');
+
 /**
  * @description 任务控制器
  * @module controllers/taskController
  */
 
+/**
+ * @description 获取任务列表接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.query - 查询参数（可选）
+ * @param {string} [req.query.stuId] - 学生ID（可选）
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Object>} 任务列表及分页信息
+ */
 exports.getTasks = async (req, res, next) => {
     try {
         const result = await taskService.getTasks(req.query);
