@@ -56,8 +56,34 @@ exports.getArticles = async (query) => {
 };
 
 
+// 更新文章接口
+exports.updateArticle = async (articleId, updateUrl, stuId) => {
+    if (!articleId || isNaN(Number(articleId))) {
+        throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
+    }
 
-exports.updateArticle = async (articleId, updateUrl) => {
+    const article = await Article.findByPk(articleId);
+    if (!article) {
+        throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
+    }
+
+    const userInfo = await User.findByPk(article.author_id);
+    if (userInfo.stu_id !== stuId) {
+        throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
+    }
+
+    if (!updateUrl) {
+        throw new AppError('缺少 text_md_url', 400, 'MISSING_TEXT_MD_URL');
+    }
+
+    article.text_md_url = updateUrl;
+    await article.save();
+
+    return article;
+};
+
+// 删除文章接口(软删除)
+exports.deleteArticle = async (articleId) => {
     // 校验ID
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
@@ -73,15 +99,7 @@ exports.updateArticle = async (articleId, updateUrl) => {
     if(userInfo.stu_id !== req.user.stu_id) {
         throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
     }
-    // 只更新 text_md_url 字段
-   
-    if (!updateUrl) {
-        throw new AppError('缺少 updateUrl', 400, 'MISSING_TEXT_MD_URL');
-    }
-
-    article.text_md_url = updateUrl;
-    await article.save();
-
-    // 返回更新后的文章
-    return article;
+    
+    // 软删除文章
+    await article.destroy();
 };
