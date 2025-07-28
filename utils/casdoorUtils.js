@@ -32,11 +32,12 @@ exports.refreshToken = async function(data) {
     try {
         const response = await casdoor.refreshToken(data);
 
-        if (response.error.data) {
+        // 修正判断，避免 undefined 报错
+        if (response.error && response.error.data) {
             throw new Error('刷新AccessToken失败');
         }
         console.log('刷新AccessToken响应:', response);
-        return (response);
+        return response;
     } catch (error) {
         let msg = error?.response?.data?.error_description || error.message || '刷新AccessToken失败，请稍后再试';
         let code = error?.response?.data?.error || 'REFRESH_TOKEN_FAILED';

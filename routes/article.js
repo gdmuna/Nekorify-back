@@ -9,5 +9,6 @@ const articleController = require('../controllers/articleController.js');
 
 router.get('/',articleController.getAllArticles);
 router.put('/:id',articleController.updateArticle);
+router.delete('/:id',articleController.deleteArticle);
 
 module.exports = router;

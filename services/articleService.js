@@ -83,7 +83,7 @@ exports.updateArticle = async (articleId, updateUrl, stuId) => {
 };
 
 // 删除文章接口(软删除)
-exports.deleteArticle = async (articleId) => {
+exports.deleteArticle = async (articleId,stuId) => {
     // 校验ID
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
@@ -96,10 +96,12 @@ exports.deleteArticle = async (articleId) => {
     }
 
     const userInfo = await User.findByPk(article.author_id);
-    if(userInfo.stu_id !== req.user.stu_id) {
+    console.log('用户信息:', userInfo);
+    if(userInfo.stu_id !== stuId) {
         throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
     }
     
     // 软删除文章
     await article.destroy();
+    return(article); // 返回被删除的文章信息
 };

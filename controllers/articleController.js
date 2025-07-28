@@ -23,7 +23,7 @@ exports.updateArticle = async (req, res, next) => {
     try {
         const articleId = req.params.id;
         const updateUrl = req.body.updateUrl; 
-        const stuId = req.user.stu_id; 
+        const stuId = req.user.name; 
         const result = await articleService.updateArticle(articleId, updateUrl, stuId);
         return res.success(result, '文章修改成功', 'ARTICLE_UPDATED');
     } catch (error) {
@@ -35,9 +35,9 @@ exports.updateArticle = async (req, res, next) => {
 exports.deleteArticle = async (req, res, next) => {
     try {
         const articleId = req.params.id;
-        const stuId = req.user.stu_id; 
-        await articleService.deleteArticle(articleId, stuId);
-        return res.success(null, '文章删除成功', 'ARTICLE_DELETED');
+        const stuId = req.user.name; 
+        const result = await articleService.deleteArticle(articleId, stuId);
+        return res.success(result, '文章删除成功', 'ARTICLE_DELETED');
     } catch (error) {
         next(error);
     }
