@@ -1,4 +1,4 @@
-const { Article,User } = require('../models');
+const { Article, User } = require('../models');
 
 // 获取文章列表接口
 exports.getArticles = async (query) => {
@@ -41,10 +41,10 @@ exports.getArticles = async (query) => {
 
     return {
         pagination: {
-            currentPage,
-            pageSize,
-            totalRecords: count,
-            totalPages,
+            currentPage,             // 当前页
+            pageSize,                // 每页记录数
+            totalRecords: count,     // 总记录数
+            totalPages,              // 总页数   
         },
         articles
     };
