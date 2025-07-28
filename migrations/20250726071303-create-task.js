@@ -17,13 +17,19 @@ module.exports = {
         allowNull: false,
         type: Sequelize.TEXT
       },
-      publisher: {
+      publish_department: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      executor: {
+      executor_id: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       start_time: {
         allowNull: false,

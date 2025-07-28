@@ -5,6 +5,7 @@ const whiteList = [
   /^\/api\/auth/,
   /^\/api\/announcement/,
   /^\/api\/article/,
+  /^\/api\/task/,
 ];
 
 // 白名单函数

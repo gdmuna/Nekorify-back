@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'author_id',
         sourceKey: 'id'
       });
+      this.hasMany(models.Task, {
+        foreignKey: 'executor_id',
+        sourceKey: 'id',
+      });
     }
   }
   User.init({

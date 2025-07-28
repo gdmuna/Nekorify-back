@@ -10,7 +10,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // 关联到用户表
+      Task.belongsTo(models.User, {
+        foreignKey: 'executor_id',
+        targetKey: 'id',
+      });
     }
   }
   Task.init({
@@ -22,13 +26,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.TEXT
     },
-    publisher: {
+    publish_department: {
       allowNull: false,
       type: DataTypes.STRING
     },
-    executor: {
+    executor_id: {
       allowNull: false,
-      type: DataTypes.STRING
+      type: DataTypes.INTEGER
     },
     start_time: {
       allowNull: false,
@@ -50,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
     deletedAt: 'deletedAt', // 设置软删除字段名
     indexes: [
       {
-        fields: ['executor'],
+        fields: ['executor_id'],
       }
     ],
   });
