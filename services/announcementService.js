@@ -43,3 +43,23 @@ exports.getAnnouncements = async (query) => {
         announcements
     };
 };
+
+
+/**
+ * @description 更新公告接口
+ * @param {number} id - 公告ID
+ * @param {Object} updateData - 更新数据
+ * @returns {Promise<Object>} 更新后的公告信息
+ */
+exports.updateAnnouncement = async (id, updateData) => {
+    // 查找公告
+    const announcement = await Announcement.findByPk(id);
+    if (!announcement) {
+        throw new Error('公告不存在');
+    }
+
+    // 更新公告
+    const updatedAnnouncement = await announcement.update(updateData);
+    return updatedAnnouncement;
+
+};  

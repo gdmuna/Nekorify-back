@@ -24,3 +24,22 @@ exports.getAnnouncements = async (req, res, next) => {
         next(error); // 交给错误处理中间件
     }
 };
+
+
+/**
+ * @description 更新公告接口
+ * @param {Object} req - 请求对象
+ * @param {number} req.params.id - 公告ID
+ * @param {Object} req.body - 更新数据
+ * @returns {Promise<Object>} 更新后的公告信息
+ */
+exports.updateAnnouncement = async (req, res, next) => {
+    try {
+        const announcementId = req.params.id;
+        const updateData = req.body;
+        const updatedAnnouncement = await announcementService.updateAnnouncement(id, updateData);
+        return res.success(updatedAnnouncement, '更新成功', 'SUCCESS');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
