@@ -1,4 +1,8 @@
 const articleService = require('../services/articleService');
+/**
+ * @description 文章控制器
+ * @module controllers/articleController
+ */
 
 // 获取文章列表接口
 exports.getAllArticles = async (req, res, next) => {

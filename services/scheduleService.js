@@ -1,29 +1,29 @@
-const { Announcement } = require('../models');
+const { Schedule } = require('../models');
 /**
- * @description 公告服务
- * @module services/announcementService
+ * @description 日程服务
+ * @module services/scheduleService
  */
 
-// 获取公告列表接口
-exports.getAnnouncements = async (query) => {
+// 获取日程列表接口
+exports.getSchedules = async (query) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
-    // 设置文章查询条件
+    // 设置日程查询条件
     const condition = {
         order: [['createdAt', 'DESC']],
         offset,
         limit: pageSize,
     };
-
-    // 查询公告并统计数据
-    const { count, rows } = await Announcement.findAndCountAll(condition);
+    
+    // 查询日程并统计数据
+    const { count, rows } = await Schedule.findAndCountAll(condition);
 
     // 统计分页信息
     const totalPages = Math.ceil(count / pageSize);
-    const announcements = rows;
+    const schedules = rows;
 
     return {
         pagination: {
@@ -32,6 +32,6 @@ exports.getAnnouncements = async (query) => {
             totalRecords: count,     // 总记录数
             totalPages,              // 总页数   
         },
-        announcements
+        schedules
     };
 };

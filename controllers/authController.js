@@ -1,6 +1,9 @@
 const casdoor = require('../config/casdoorConfigs');
 const casdoorUtils = require('../utils/casdoorUtils');
-
+/**
+ * @description 认证控制器
+ * @module controllers/authController
+ */
 
 //获取casdoor登录地址并跳转
 exports.getLoginUrl = (req, res) => {

@@ -1,29 +1,29 @@
-const { Announcement } = require('../models');
+const { Replay } = require('../models');
 /**
- * @description 公告服务
- * @module services/announcementService
+ * @description 课程回放服务
+ * @module services/replayService
  */
 
-// 获取公告列表接口
-exports.getAnnouncements = async (query) => {
+// 获取课程回放列表接口
+exports.getReplays = async (query) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
-    // 设置文章查询条件
+    // 设置课程回放查询条件
     const condition = {
         order: [['createdAt', 'DESC']],
         offset,
         limit: pageSize,
     };
-
-    // 查询公告并统计数据
-    const { count, rows } = await Announcement.findAndCountAll(condition);
+    
+    // 查询课程回放并统计数据
+    const { count, rows } = await Replay.findAndCountAll(condition);
 
     // 统计分页信息
     const totalPages = Math.ceil(count / pageSize);
-    const announcements = rows;
+    const replays = rows;
 
     return {
         pagination: {
@@ -32,6 +32,6 @@ exports.getAnnouncements = async (query) => {
             totalRecords: count,     // 总记录数
             totalPages,              // 总页数   
         },
-        announcements
+        replays
     };
 };

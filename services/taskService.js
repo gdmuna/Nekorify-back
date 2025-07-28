@@ -1,5 +1,9 @@
 const { Task, User } = require('../models');
 const AppError = require('../utils/AppError');
+/**
+ * @description 任务服务
+ * @module services/taskService
+ */
 
 // 获取任务列表接口
 exports.getTasks = async (query) => {

@@ -1,4 +1,8 @@
 const announcementService = require('../services/announcementService');
+/**
+ * @description 公告控制器
+ * @module controllers/announcementController
+ */
 
 exports.getAnnouncements = async (req, res, next) => {
     try {
