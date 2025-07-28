@@ -1,5 +1,4 @@
 const { Announcement, User } = require('../models');
-const AppError = require('../utils/AppError');
 
 // 获取公告列表接口
 exports.getAnnouncements = async (query) => {
