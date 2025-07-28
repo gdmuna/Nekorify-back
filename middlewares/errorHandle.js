@@ -1,5 +1,5 @@
 /**
- * 全局错误处理中间件
+ * @description 全局错误处理中间件
  * @param {Error} err - 错误对象
  * @param {Request} req - 请求对象
  * @param {Response} res - 响应对象
