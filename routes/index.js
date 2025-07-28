@@ -5,12 +5,13 @@ const authRouter = require('./auth');
 const articleRouter = require('./article');
 const announcementRouter = require('./announcement');
 const taskRouter = require('./task');
+const replayRouter = require('./replay');
 
 router.use('/users', usersRouter);
 router.use('/auth', authRouter);
 router.use('/article', articleRouter);
 router.use('/announcement', announcementRouter);
 router.use('/task', taskRouter);
-
+router.use('/replay', replayRouter);
 
 module.exports = router;
