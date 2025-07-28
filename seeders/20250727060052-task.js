@@ -10,8 +10,8 @@ module.exports = {
       const task = {
         title: `任务${i}`,
         text: `任务内容${i}`,
-        publisher: `发布者${i}`,
-        executor: `执行者${i}`,
+        publish_department: `发布部门${i}`,
+        executor_id: i,
         start_time: new Date(),
         ddl: new Date(),
         createdAt: new Date(),
