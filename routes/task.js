@@ -9,5 +9,7 @@ const taskController = require('../controllers/taskController');
 
 // 获取任务列表
 router.get('/', taskController.getTasks);
+// 修改任务
+router.put('/', )
 
 module.exports = router;
