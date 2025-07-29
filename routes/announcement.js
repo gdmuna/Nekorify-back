@@ -11,5 +11,9 @@ const announcementController = require('../controllers/announcementController.js
 router.get('/', announcementController.getAnnouncements);
 // 更新公告
 router.put('/:id', announcementController.updateAnnouncement);
+// 删除公告
+router.delete('/:id', announcementController.deleteAnnouncement);
+// 新增公告
+router.post('/', announcementController.createAnnouncement);
 
 module.exports = router;
