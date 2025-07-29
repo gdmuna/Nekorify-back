@@ -18,13 +18,28 @@ exports.getAllArticles = async (req, res, next) => {
     }
 };
 
+// 新增文章接口
+exports.addArticle = async (req, res, next) => {
+    try {
+        const { title, textUrl, coverUrl } = req.body;
+        const userInfo = req.user;
+        const result = await articleService.addArticle(title, textUrl, userInfo, coverUrl);
+        return res.success(result, '文章添加成功', 'ARTICLE_ADDED');
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 // 修改文章接口
 exports.updateArticle = async (req, res, next) => {
     try {
         const articleId = req.params.id;
-        const updateUrl = req.body.updateUrl; 
+        const textUrl = req.body.textUrl; 
         const stuId = req.user.name; 
-        const result = await articleService.updateArticle(articleId, updateUrl, stuId);
+        const cover_url = req.body.coverUrl;
+        const department = req.user.groups[1]; 
+        const result = await articleService.updateArticle(articleId, textUrl , stuId, cover_url, department);
         return res.success(result, '文章修改成功', 'ARTICLE_UPDATED');
     } catch (error) {
         next(error);

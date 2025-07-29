@@ -55,6 +55,31 @@ exports.getArticles = async (query) => {
     };
 };
 
+// 新增文章接口
+exports.addArticle = async (title, textUrl, userInfo, cover_url, ) => {
+    if (!title || !textUrl || !cover_url) {
+        throw new AppError('缺少属性', 400, 'MISSING_TITLE_OR_TEXT_URL_OR_COVER_URL');
+    }
+
+    // 查找用户
+    const userId = await User.findOne({ where: { stu_id: userInfo.name } });
+    if (!userInfo) {
+        throw new AppError('学生ID不存在', 404, 'STUID_NOT_FOUND');
+    }
+
+
+    // 创建文章
+    const article = await Article.create({
+        title,
+        text_md_url: textUrl,
+        author_id: userId.id, 
+        author: userInfo.displayName,
+        cover_url: cover_url, 
+        department: userInfo.groups[1], 
+    });
+
+    return article;
+}
 
 // 更新文章接口
 exports.updateArticle = async (articleId, updateUrl, stuId) => {

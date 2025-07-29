@@ -1,5 +1,6 @@
 const casdoor = require('../config/casdoorConfigs');
 const AppError = require('../utils/AppError');
+const { User } = require('../models');
 
 exports.handleCallBack = async function(code) {
     try {
@@ -14,17 +15,36 @@ exports.handleCallBack = async function(code) {
             if (!userInfo) {
                 throw new Error('解析JWT Token失败');
             }
+
+            // 检查用户是否存在
+            const user = await User.findOne({ where: { stu_id: userInfo.name } });
+            if (!user) {
+                // 如果用户不存在，创建新用户
+                await User.create({
+                    stu_id: userInfo.name,
+                    name: userInfo.displayName,
+                    sso_id: userInfo.id,
+                    last_signin_time: new Date(),
+                });
+            }else {
+                // 如果用户已存在，更新最后登录时间
+                await User.update(
+                    { last_signin_time: new Date() },
+                    { where: { stu_id: userInfo.name } }
+                );
+            }
+
             return {
                 token: TokenResponse,
                 userInfo: userInfo,
             };
     } catch (error) {
             console.error('登录失败:', error);
-            return {
-                success: false,
-                message: error.response.data.error_description || '登录失败，请稍后再试',
-            };
-    }
+            let msg = error?.response?.data?.error_description || error.message || '登录失败，请稍后再试';
+            let code = error?.response?.data?.error || 'LOGIN_FAILED';
+            let status = error?.response?.status || 400;
+            throw new AppError(msg, status, code);
+        }
 };
 
 // 刷新AccessToken
