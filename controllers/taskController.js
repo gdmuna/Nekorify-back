@@ -25,3 +25,25 @@ exports.getTasks = async (req, res, next) => {
         next(error); // 交给错误处理中间件
     }
 };
+
+
+/**
+ * @description 修改任务接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.body - 请求体
+ * @param {string} req.body.taskId - 任务ID
+ * @param {string} [req.body.title] - 学生ID（可选）
+ * @returns {Promise<Object>} 修改结果
+ */
+exports.getMessages = async (req, res, next) => {
+    try {
+        const query = req.query;
+        const result = await messageService.getMessages(query);
+        if (!result.messages || result.messages.length === 0) {
+            return res.success(result, '没有查询到相关消息', 'NO_MESSAGE');
+        }
+        return res.success(result, '查询成功', 'SUCCESS');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};

@@ -27,7 +27,8 @@ module.exports = {
       },
       views: {
         allowNull: false,
-        type: Sequelize.STRING
+        defaultValue: 0,
+        type: Sequelize.INTEGER
       },
       deletedAt: {
         allowNull: true,

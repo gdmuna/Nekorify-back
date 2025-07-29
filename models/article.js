@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     views: {
       allowNull: false,
+      defaultValue: 0,
       type: DataTypes.INTEGER
     },
     deletedAt: {

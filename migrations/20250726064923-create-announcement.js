@@ -31,7 +31,7 @@ module.exports = {
       },
       views: {
         allowNull: false,
-        defaultValue: false,
+        defaultValue: 0,
         type: Sequelize.INTEGER
       },
       deletedAt: {
