@@ -27,23 +27,31 @@ exports.getTasks = async (req, res, next) => {
 };
 
 
-/**
+/**3
  * @description 修改任务接口
  * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
  * @param {Object} req.body - 请求体
- * @param {string} req.body.taskId - 任务ID
- * @param {string} [req.body.title] - 学生ID（可选）
+ * @param {string} [req.body.title] - 任务标题（可选）
+ * @param {string} [req.body.text] - 任务内容（可选）
+ * @param {string} [req.body.executor_id] - 任务执行人（可选）
+ * @param {string} [req.body.executor_name] - 执行人姓名（可选）
+ * @param {string} [req.body.start_time] - 任务开始时间（可选）
+ * @param {string} [req.body.ddl] - 任务截止时间（可选）
  * @returns {Promise<Object>} 修改结果
  */
-exports.getMessages = async (req, res, next) => {
+exports.updateTask = async (req, res, next) => {
     try {
-        const query = req.query;
-        const result = await messageService.getMessages(query);
-        if (!result.messages || result.messages.length === 0) {
-            return res.success(result, '没有查询到相关消息', 'NO_MESSAGE');
-        }
-        return res.success(result, '查询成功', 'SUCCESS');
+        const taskId = req.params.id;
+        const stuId = req.user.name; 
+        const title = req.body.title;
+        const text = req.body.text;
+        const  start_time = req.body.start_time
+        const ddl = req.body.ddl;
+        const result = await taskService.updateTask(taskId, stuId, title, text, start_time, ddl);
+        return res.success(result, '任务修改成功', 'TASK_UPDATED');
     } catch (error) {
-        next(error); // 交给错误处理中间件
+        next(error);
     }
 };

@@ -10,17 +10,21 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      // 关联到用户消息状态表
       this.hasMany(models.User_message_status, {
         foreignKey: 'user_id',
         sourceKey: 'id'
       });
+      // 关联到文章表
       this.hasMany(models.Article, {
         foreignKey: 'author_id',
         sourceKey: 'id'
       });
-      this.hasMany(models.Task, {
+      // 关联到任务用户表
+      this.belongsToMany(models.Task, {
+        through: 'TasksUsers',
         foreignKey: 'executor_id',
-        sourceKey: 'id',
+        otherKey: 'task_id',
       });
     }
   }

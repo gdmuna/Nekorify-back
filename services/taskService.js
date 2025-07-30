@@ -63,3 +63,50 @@ exports.getTasks = async (query) => {
         tasks
     };
 };
+
+
+/**
+ * @description 修改任务接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.body - 请求体
+ * @param {string} [req.body.title] - 任务标题（可选）
+ * @param {string} [req.body.text] - 任务内容（可选）
+ * @param {string} [req.body.start_time] - 任务开始时间（可选）
+ * @param {string} [req.body.ddl] - 任务截止时间（可选）
+ * @returns {Promise<Object>} 修改结果
+ */
+exports.updateTask = async (taskId, stuId, title, text, start_time, ddl) => {
+    // 校验任务ID是否为数字
+    if (!taskId || isNaN(Number(taskId))) {
+        throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
+    }
+    // 校验更新字段是否为空
+    if (!title && !text && !start_time && !ddl) {
+        throw new AppError('至少需要提供一个更新字段', 400, 'MISSING_UPDATE_FIELDS');
+    }
+    // 校验任务是否存在
+    const task = await Task.findByPk(taskId);
+    if (!task) {
+        throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
+    }
+    // 通过user表的stu_id对应的id来查找task表内的executor_id
+    const userInfo = await User.findByPk(stuId);
+    if (userInfo.stu_id !== stuId) {
+        throw new AppError('该学生暂无任务', 403, 'STU_NOT_TASK');
+    }
+    // 校验学生是否为任务执行人
+    if (task.executor_id !== userInfo.id) {
+        throw new AppError('该学生不是任务执行人', 403, 'STU_NOT_EXECUTOR');
+    }
+
+    if (!updateUrl) {
+        throw new AppError('缺少 text_md_url', 400, 'MISSING_TEXT_MD_URL');
+    }
+
+    article.text_md_url = updateUrl;
+    await article.save();
+
+    return article;
+};

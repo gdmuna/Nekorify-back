@@ -10,6 +10,7 @@ module.exports = {
       const message = {
         id: i,
         text: `消息${i}`,
+        sender_id: i,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
