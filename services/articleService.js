@@ -87,7 +87,7 @@ exports.updateArticle = async (articleId, updateUrl, stuId) => {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
     }
 
-    const article = await Article.findByPk(articleId);
+    const article = await Article.findByPk(articleId);  
     if (!article) {
         throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
     }

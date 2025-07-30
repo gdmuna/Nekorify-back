@@ -31,10 +31,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.STRING
     },
-    executor_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER
-    },
     start_time: {
       allowNull: false,
       type: DataTypes.DATE
@@ -55,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     deletedAt: 'deletedAt', // 设置软删除字段名
     indexes: [
       {
-        fields: ['executor_id'],
+        fields: ['id'],
       }
     ],
   });

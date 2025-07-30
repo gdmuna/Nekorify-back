@@ -53,6 +53,26 @@ module.exports = {
         is_frozen: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+      },
+      {
+        id: 6,
+        stu_id: '24208030097',
+        name: '邝政',
+        sso_id: '0191e68e-2b29-7094-a20d-6c67ffe53877',
+        last_signin_time: new Date(),
+        is_frozen: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 7,
+        stu_id: '24209020059',
+        name: '胡鑫霖',
+        sso_id: '0191e68e-2b2a-7482-872f-c8a741737e6a',
+        last_signin_time: new Date(),
+        is_frozen: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     ]);
   },

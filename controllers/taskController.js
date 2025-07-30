@@ -6,7 +6,7 @@ const taskService = require('../services/taskService');
  */
 
 /**
- * @description 获取本用户的任务列表接口
+ * @description 查询本用户的任务列表接口
  * @param {Object} req - 请求对象
  * @param {Object} req.query - 查询参数（可选）
  * @param {number} [req.query.currentPage] - 当前页码（可选）
@@ -30,15 +30,15 @@ exports.getTasks = async (req, res, next) => {
 
 
 /**
- * @description 修改任务接口
+ * @description 修改任务接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
  * @param {Object} req.params - 路由参数
  * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
  * @param {Object} req.body - 请求体
  * @param {string} [req.body.title] - 任务标题（可选）
  * @param {string} [req.body.text] - 任务内容（可选）
- * @param {string} [req.body.executor_id] - 任务执行人（可选）
- * @param {string} [req.body.executor_name] - 执行人姓名（可选）
+ * @param {string} [req.body.publish_department] - 任务发布部门（可选）
  * @param {string} [req.body.start_time] - 任务开始时间（可选）
  * @param {string} [req.body.ddl] - 任务截止时间（可选）
  * @returns {Promise<Object>} 修改结果
@@ -46,12 +46,14 @@ exports.getTasks = async (req, res, next) => {
 exports.updateTask = async (req, res, next) => {
     try {
         const taskId = req.params.id;
-        const stuId = req.user.name; 
-        const title = req.body.title;
-        const text = req.body.text;
-        const  start_time = req.body.start_time
-        const ddl = req.body.ddl;
-        const result = await taskService.updateTask(taskId, stuId, title, text, start_time, ddl);
+        const params = {
+            title: req.body.title,
+            text: req.body.text,
+            publish_department: req.body.publish_department,
+            start_time: req.body.start_time,
+            ddl: req.body.ddl,
+        };
+        const result = await taskService.updateTask(taskId, params);
         return res.success(result, '任务修改成功', 'TASK_UPDATED');
     } catch (error) {
         next(error);
