@@ -44,3 +44,44 @@ exports.getReplays = async (query) => {
         replays
     };
 };
+
+/**
+ * @description 添加课程回放
+ * @param {Object} replayData - 回放数据
+ * @returns {Promise<Object>} 新创建的回放记录
+ */
+
+exports.addReplay = async (replayData) => {
+    // 创建新的课程回放记录
+    const replay = await Replay.create(replayData);
+    return replay;
+};
+
+exports.updateReplay = async (replayId, replayData) => {
+    // 查找课程回放记录
+    const replay = await Replay.findByPk(replayId);
+    if (!replay) {
+        return null; // 回放不存在
+    }
+    
+    // 更新课程回放记录
+    await replay.update(replayData);
+    return replay;
+};
+
+/**
+ * @description 删除课程回放
+ * @param {number} replayId - 回放ID
+ * @returns {Promise<boolean>} 是否删除成功
+ */
+exports.deleteReplay = async (replayId) => {
+    // 查找课程回放记录
+    const replay = await Replay.findByPk(replayId);
+    if (!replay) {
+        return false; // 回放不存在
+    }
+    
+    // 删除课程回放记录
+    await replay.destroy();
+    return true;
+};
