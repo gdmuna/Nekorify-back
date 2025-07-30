@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User_message_status.init({
-    user_id: {
+    receiver_id: {
       allowNull: false,
       type: DataTypes.INTEGER
     },

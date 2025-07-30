@@ -8,7 +8,7 @@ module.exports = {
   
     for (let i = 1; i <= counts; i++) {
       const user_message_status = {
-        user_id: i,
+        receiver_id: i,
         message_id: i,
         is_read: false,
         createdAt: new Date(),
