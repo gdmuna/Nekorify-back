@@ -34,12 +34,11 @@ exports.addArticle = async (req, res, next) => {
 // 修改文章接口
 exports.updateArticle = async (req, res, next) => {
     try {
-        const articleId = req.params.id;
-        const textUrl = req.body.textUrl; 
+        const articleId = req.params.id;  
         const stuId = req.user.name; 
-        const cover_url = req.body.coverUrl;
         const department = req.user.groups[1]; 
-        const result = await articleService.updateArticle(articleId, textUrl , stuId, cover_url, department);
+        const body = req.body;
+        const result = await articleService.updateArticle(articleId, stuId, department, body);
         return res.success(result, '文章修改成功', 'ARTICLE_UPDATED');
     } catch (error) {
         next(error);
