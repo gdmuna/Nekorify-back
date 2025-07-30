@@ -8,7 +8,6 @@ const whiteList = [
   /^\/api\/task/,
   /^\/api\/replay\/$/,
   /^\/api\/schedule/,
-  /^\/api\/message/,
 ];
 
 // 白名单函数

@@ -1,5 +1,6 @@
 const { User_message_status, Message, User } = require('../models');
 const AppError = require('../utils/AppError');
+const { Op } = require('sequelize');
 
 /**
  * @description 消息服务
@@ -79,4 +80,45 @@ exports.getMessages = async (query) => {
         },
         messages
     };
+};
+
+
+exports.addMessage = async (messageData, userInfo) => {
+    if (!messageData.text) {
+        throw new AppError('缺少属性', 400, 'MISSING_TEXT');
+    }
+    if (!Array.isArray(messageData.receiverIds) || messageData.receiverIds.length === 0) {
+        throw new AppError('缺少接收者', 400, 'MISSING_RECEIVER');
+    }
+
+    const sender = await User.findOne({
+        where: { stu_id: userInfo.name },
+        attributes: ['id']
+    });
+    if (!sender) {
+        throw new AppError('发送者不存在', 404, 'SENDER_NOT_FOUND');
+    }
+    messageData.sender_id = sender.id; // 设置发送者ID
+
+    // 创建新的消息记录
+    const message = await Message.create(messageData);
+
+    // 查找所有接收者用户
+    const users = await User.findAll({
+        where: { stu_id: { [Op.in]: messageData.receiverIds } }
+    });
+    if (users.length === 0) {
+        throw new AppError('接收者不存在', 404, 'RECEIVER_NOT_FOUND');
+    }
+
+    // 为每个接收者创建消息状态记录
+    const userStatuses = users.map(user => ({
+        receiver_id: user.id, // 注意字段名
+        message_id: message.id,
+        is_read: false // 默认未读
+    }));
+
+    await User_message_status.bulkCreate(userStatuses);
+
+    return message;
 };

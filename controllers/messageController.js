@@ -27,3 +27,15 @@ exports.getMessages = async (req, res, next) => {
         next(error); // 交给错误处理中间件
     }
 };
+
+
+exports.addMessage = async (req, res, next) => {
+    try {
+        const messageData = req.body;
+        const userInfo = req.user; // 获取当前用户信息
+        const result = await messageService.addMessage(messageData, userInfo);
+        return res.success(result, '消息添加成功', 'MESSAGE_ADDED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+}

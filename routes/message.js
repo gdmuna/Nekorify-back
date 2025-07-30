@@ -8,6 +8,8 @@ const messageController = require('../controllers/messageController.js');
 
 // 获取消息列表
 router.get('/', messageController.getMessages);
+// 添加消息
+router.post('/sendMessage', messageController.addMessage);
 
 
 module.exports = router;
