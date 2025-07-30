@@ -1,5 +1,6 @@
-const { User_message_status, Message, User } = require('../models');
+const { User_message_status, Message, User,sequelize } = require('../models');
 const AppError = require('../utils/AppError');
+const { Op } = require('sequelize');
 
 /**
  * @description 消息服务
@@ -16,59 +17,98 @@ const AppError = require('../utils/AppError');
  * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Object>} 消息列表及分页信息
  */
-exports.getMessages = async (query) => {
-    // 获取分页参数
+
+exports.addMessage = async (messageData, userInfo) => {
+    if (!messageData.text) {
+        throw new AppError('缺少属性', 400, 'MISSING_TEXT');
+    }
+    if (!Array.isArray(messageData.receiverIds) || messageData.receiverIds.length === 0) {
+        throw new AppError('缺少接收者', 400, 'MISSING_RECEIVER');
+    }
+
+    
+
+    // 使用事务，如果后续操作未完成或错误，则回滚事务确保数据一致性
+    const transaction = await sequelize.transaction();
+    try {
+        const sender = await User.findOne({
+            where: { stu_id: userInfo.name },
+            attributes: ['id'],
+            transaction
+        });
+        if (!sender) {
+            throw new AppError('发送者不存在', 404, 'SENDER_NOT_FOUND');
+        }
+        messageData.sender_id = sender.id;
+
+        // 创建消息
+        const message = await Message.create(messageData, { transaction });
+
+        // 查找接收者
+        const users = await User.findAll({
+            where: { stu_id: { [Op.in]: messageData.receiverIds } },
+            transaction
+        });
+        if (users.length === 0) {
+            throw new AppError('接收者不存在', 404, 'RECEIVER_NOT_FOUND');
+        }
+
+        // 创建消息状态
+        const userStatuses = users.map(user => ({
+            receiver_id: user.id,
+            message_id: message.id,
+            is_read: false
+        }));
+
+        await User_message_status.bulkCreate(userStatuses, { transaction });
+
+        await transaction.commit();
+        return message;
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+};
+
+exports.getMessagesByUserInfo = async (userInfo, query = {}) => {
+    // 1. 获取用户id
+    const user = await User.findOne({ where: { stu_id: userInfo.name } });
+    if (!user) {
+        throw new AppError('用户不存在', 404, 'USER_NOT_FOUND');
+    }
+
+    // 2. 查询用户的所有消息状态，拿到 message_id
+    const userMessageStatuses = await User_message_status.findAll({
+        where: { receiver_id: user.id }, // 或 user_id，字段名按你的表结构调整
+        attributes: ['message_id']
+    });
+
+    const messageIds = userMessageStatuses.map(item => item.message_id);
+
+    if (messageIds.length === 0) {
+        return {
+            pagination: {
+                currentPage: 1,
+                pageSize: query.pageSize ? Number(query.pageSize) : 10,
+                totalRecords: 0,
+                totalPages: 0,
+            },
+            messages: []
+        };
+    }
+
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
-    // 校验stuId是否为数字
-    if (query.stuId && isNaN(Number(query.stuId))) {
-        throw new AppError('学生ID输入错误', 400, 'INVALID_STUID');
-    }
-
-    // 获取用户ID
-    let userId;
-    if (query.stuId) {
-        const userInfo = await User.findOne({ where: { stu_id: query.stuId } });
-        if (!userInfo) {
-            throw new AppError('获取用户失败 用户ID不存在', 404, 'USERID_NOT_FOUND');
-        }
-        userId = userInfo.id;
-    }
-
-    // 设置查询条件
-    const where = {}; // Message表的查询条件（可为空）
-
-    // 与user_message_status表关联查询，设置 user_message_status 的查询条件
-    const statusWhere = {};
-    if (userId) {
-        statusWhere.user_id = userId;
-    }
-    if (query.is_read !== undefined) {
-        statusWhere.is_read = query.is_read === 'true'; // 转换为布尔值
-    }
-    const include = [{
-        model: User_message_status,
-        where: statusWhere,
-        required: true // 关联查询
-    }];
-
-    // 设置消息查询条件
-    const condition = {
-        where,
-        include,
+    const { count, rows } = await Message.findAndCountAll({
+        where: { id: { [Op.in]: messageIds } },
         order: [['createdAt', 'DESC']],
         offset,
         limit: pageSize,
-    };
+    });
 
-    // 查询消息并统计数据
-    const { count, rows } = await Message.findAndCountAll(condition);
-
-    // 统计分页信息
     const totalPages = Math.ceil(count / pageSize);
-    const messages = rows;
 
     return {
         pagination: {
@@ -77,6 +117,7 @@ exports.getMessages = async (query) => {
             totalRecords: count,
             totalPages,
         },
-        messages
+        messages: rows
     };
 };
+

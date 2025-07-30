@@ -82,7 +82,7 @@ exports.addArticle = async (title, textUrl, userInfo, cover_url, ) => {
 }
 
 // 更新文章接口
-exports.updateArticle = async (articleId, updateUrl, stuId) => {
+exports.updateArticle = async (articleId, stuId, body) => {
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
     }
@@ -97,11 +97,13 @@ exports.updateArticle = async (articleId, updateUrl, stuId) => {
         throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
     }
 
-    if (!updateUrl) {
-        throw new AppError('缺少 text_md_url', 400, 'MISSING_TEXT_MD_URL');
+    if (!body) {
+        throw new AppError('缺少更新内容', 400, 'MISSING_UPDATE_CONTENT');
     }
 
-    article.text_md_url = updateUrl;
+    article.text_md_url = body.updateUrl;
+    article.title = body.title;
+    article.cover_url = body.coverUrl;
     await article.save();
 
     return article;
