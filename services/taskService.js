@@ -1,4 +1,4 @@
-const { Task, User } = require('../models');
+const { Task, User, TasksUsers } = require('../models');
 const AppError = require('../utils/AppError');
 
 /**
@@ -7,10 +7,9 @@ const AppError = require('../utils/AppError');
  */
 
 /**
- * @description 获取任务列表接口
+ * @description 获取本用户的任务列表接口
  * @param {Object} req - 请求对象
  * @param {Object} req.query - 查询参数（可选）
- * @param {string} [req.query.stuId] - 学生ID（可选）
  * @param {number} [req.query.currentPage] - 当前页码（可选）
  * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Object>} 任务列表及分页信息
@@ -21,26 +20,22 @@ exports.getTasks = async (query) => {
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
-    // 校验stuId是否为数字
-    if (query.stuId && isNaN(Number(query.stuId))) {
-        throw new AppError('学生ID输入错误', 400, 'INVALID_STUID');
+    // 只允许查自己的任务
+    const stuId = query.stuId;
+    const userInfo = await User.findOne({ where: { stu_id: stuId } });
+    if (!userInfo) {
+        throw new AppError('学生用户不存在', 404, 'STUID_NOT_FOUND');
     }
 
-    // 设置查询条件
-    const where = {};
-    if (query.stuId) {
-        const userInfo = await User.findOne({
-            where: { stu_id: query.stuId }
-        });
-        if (!userInfo) {
-            throw new AppError('获取任务失败 学生ID不存在', 404, 'STUID_NOT_FOUND');
-        }
-        where.executor_id = userInfo.id; // 使用userId进行查询
-    }
+    // 查找该用户参与的所有任务id
+    // 先查TasksUsers关联表
+    const tasksUsers = await TasksUsers.findAll({ where: { executor_id: userInfo.id } });
+    // 查Task表，取出每个元素的 task_id 字段放到数组中
+    const taskIds = tasksUsers.map(tu => tu.task_id);
 
     // 设置任务查询条件
     const condition = {
-        where,
+        where: { id: taskIds },
         order: [['createdAt', 'DESC']],
         offset,
         limit: pageSize,

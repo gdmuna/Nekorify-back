@@ -6,7 +6,7 @@ const taskService = require('../services/taskService');
  */
 
 /**
- * @description 获取任务列表接口
+ * @description 获取本用户的任务列表接口
  * @param {Object} req - 请求对象
  * @param {Object} req.query - 查询参数（可选）
  * @param {number} [req.query.currentPage] - 当前页码（可选）
@@ -15,9 +15,12 @@ const taskService = require('../services/taskService');
  */
 exports.getTasks = async (req, res, next) => {
     try {
-        const result = await taskService.getTasks(req.query);
+        if(!req.user.name) {
+            throw new AppError('未登录 无法获取非本人任务', 401, 'NOT_LOGGED_IN');
+        }
+        const result = await taskService.getTasks({ ...req.query, stuId: req.user.name });
         if (!result.tasks || result.tasks.length === 0) {
-            return res.sucess(result, '没有查询到相关任务', 'NO_TASK');
+            return res.success(result, '没有查询到相关任务', 'NO_TASK');
         }
         return res.success(result, '查询成功', 'SUCCESS');
     } catch (error) {
@@ -26,7 +29,7 @@ exports.getTasks = async (req, res, next) => {
 };
 
 
-/**3
+/**
  * @description 修改任务接口
  * @param {Object} req - 请求对象
  * @param {Object} req.params - 路由参数
