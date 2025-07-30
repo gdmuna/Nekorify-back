@@ -26,3 +26,40 @@ exports.getReplays = async (req, res, next) => {
         next(error); // 交给错误处理中间件
     }
 };
+
+exports.addReplay = async (req, res, next) => {
+    try {
+        const replayData = req.body;
+        const replay = await replayService.addReplay(replayData);
+        return res.success(replay, '回放添加成功', 'REPLAY_ADDED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+exports.updateReplay = async (req, res, next) => {
+    try {
+        const replayId = req.params.id;
+        const replayData = req.body;
+        const replay = await replayService.updateReplay(replayId, replayData);
+        if (!replay) {
+            return res.error('回放不存在或更新失败', 'REPLAY_NOT_FOUND');
+        }
+        return res.success(replay, '回放更新成功', 'REPLAY_UPDATED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+exports.deleteReplay = async (req, res, next) => {
+    try {
+        const replayId = req.params.id;
+        const result = await replayService.deleteReplay(replayId);
+        if (!result) {
+            return res.error('回放不存在或删除失败', 'REPLAY_NOT_FOUND');
+        }
+        return res.success(null, '回放删除成功', 'REPLAY_DELETED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
