@@ -76,16 +76,19 @@ exports.addMessage = async (messageData, userInfo) => {
  * @returns {Object} 消息分页结果
  * @throws {AppError} 用户不存在
  */
-exports.getMessagesList = async (userInfo, query = {}) => {
+exports.getMessagesList = async (userInfo, query) => {
     // 1. 获取用户id
     const user = await User.findOne({ where: { stu_id: userInfo.name } });
     if (!user) {
         throw new AppError('用户不存在', 404, 'USER_NOT_FOUND');
     }
 
+    const is_read= query.is_read === 'true' ? true : false;
+    console.log('is_read:', is_read);
+
     // 2. 查询用户的所有消息状态，拿到 message_id
     const userMessageStatuses = await User_message_status.findAll({
-        where: { receiver_id: user.id },
+        where: { receiver_id: user.id, is_read: is_read }, // 只查询未读消息
         attributes: ['message_id']
     });
 

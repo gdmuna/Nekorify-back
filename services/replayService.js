@@ -45,6 +45,17 @@ exports.getReplays = async (query) => {
     };
 };
 
+exports.getReplayDetail = async (replayId) => {
+    // 查找课程回放记录
+    const replay = await Replay.findByPk(replayId);
+    if (!replay) {
+        return null; // 回放不存在
+    }
+    //观看数增加
+    await replay.increment('views');
+    return replay;
+};
+
 /**
  * @description 添加课程回放
  * @param {Object} replayData - 回放数据

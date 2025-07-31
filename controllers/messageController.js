@@ -18,7 +18,7 @@ const messageService = require('../services/messageService');
 exports.getMessages = async (req, res, next) => {
     try {
         const userInfo = req.user; // 获取当前用户信息
-        const result = await messageService.getMessagesList(userInfo);
+        const result = await messageService.getMessagesList(userInfo, req.query);
         if (!result.messages || result.messages.length === 0) {
             return res.success(result, '没有查询到相关消息', 'NO_MESSAGE');
         }
