@@ -65,7 +65,7 @@ exports.createAnnouncement = async (req, res, next) => {
     try {
         // 权限校验
         if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
-            throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
+            throw new AppError('您没有权限新增公告', 403, 'NO_PERMISSION');
         }
         const announcementData = req.body;
         const result = await announcementService.createAnnouncement(announcementData);
@@ -88,7 +88,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
         console.log(req.user);
         // 权限校验
         if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
-            throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
+            throw new AppError('您没有权限删除该公告', 403, 'NO_PERMISSION');
         }
         const announcementId = req.params.id;
         const result = await announcementService.deleteAnnouncement(announcementId);
@@ -102,7 +102,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
 /**
  * @description 修改公告接口
  * @param {Object} req - 请求对象
- * @param {number} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {number} req.user.groups - 用户组别，用于校验修改权限
  * @param {number} req.params.id - 公告ID
  * @param {Object} req.body - 更新数据
  * @param {string} [req.body.title] - 公告标题（可选）
