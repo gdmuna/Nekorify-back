@@ -27,6 +27,19 @@ exports.getReplays = async (req, res, next) => {
     }
 };
 
+exports.getReplayDetail = async (req, res, next) => {
+    try {
+        const replayId = req.params.id;
+        const result = await replayService.getReplayDetail(replayId);
+        if (!result) {
+            return res.error('回放不存在', 'REPLAY_NOT_FOUND');
+        }
+        return res.success(result, '回放详情查询成功', 'REPLAY_DETAIL_SUCCESS');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+}
+
 exports.addReplay = async (req, res, next) => {
     try {
         const replayData = req.body;

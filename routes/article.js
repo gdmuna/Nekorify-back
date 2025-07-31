@@ -4,13 +4,23 @@ const articleController = require('../controllers/articleController.js');
 
 
 /**
- * @description 文章路由
+ * @description 文章相关路由
  * @module routes/article
  */
 
-router.get('/',articleController.getAllArticles);
-router.put('/:id',articleController.updateArticle);
-router.delete('/:id',articleController.deleteArticle);
+// 获取所有文章列表
+router.get('/', articleController.getAllArticles);
+
+// 获取指定ID的文章详情
+router.get('/:id', articleController.getArticleDetail);
+
+// 更新指定ID的文章
+router.put('/:id', articleController.updateArticle);
+
+// 删除指定ID的文章
+router.delete('/:id', articleController.deleteArticle);
+
+// 新增文章
 router.post('/addArticle', articleController.addArticle);
 
 module.exports = router;
