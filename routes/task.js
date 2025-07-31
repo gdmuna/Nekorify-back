@@ -11,5 +11,7 @@ const taskController = require('../controllers/taskController');
 router.get('/', taskController.getTasks);
 // 修改任务
 router.put('/:id', taskController.updateTask);
+// 新增任务
+router.post('/', taskController.createTask);
 
 module.exports = router;

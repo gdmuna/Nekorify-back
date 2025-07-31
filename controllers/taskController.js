@@ -1,4 +1,5 @@
 const taskService = require('../services/taskService');
+const AppError = require('../utils/AppError');
 
 /**
  * @description 任务控制器
@@ -15,7 +16,7 @@ const taskService = require('../services/taskService');
  */
 exports.getTasks = async (req, res, next) => {
     try {
-        if(!req.user.name) {
+        if (!req.user.name) {
             throw new AppError('未登录 无法获取非本人任务', 401, 'NOT_LOGGED_IN');
         }
         const result = await taskService.getTasks({ ...req.query, stuId: req.user.name });
@@ -45,16 +46,40 @@ exports.getTasks = async (req, res, next) => {
  */
 exports.updateTask = async (req, res, next) => {
     try {
-        const taskId = req.params.id;
-        const params = {
-            title: req.body.title,
-            text: req.body.text,
-            publish_department: req.body.publish_department,
-            start_time: req.body.start_time,
-            ddl: req.body.ddl,
-        };
-        const result = await taskService.updateTask(taskId, params);
+        // // 权限校验
+        // if (req.user.position !== 'admin') {
+        //     throw new AppError('您没有权限修改该任务', 403, 'NO_PERMISSION');
+        // }
+        const params = { taskId: req.params.id, ...req.body };
+        const result = await taskService.updateTask(params);
         return res.success(result, '任务修改成功', 'TASK_UPDATED');
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+/**
+ * @description 新增任务接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.body - 请求体
+ * @param {Array<number>} req.body.exectorIds - 学生ID数组，支持多个人（必填）
+ * @param {string} req.body.title - 任务标题（必填）
+ * @param {string} req.body.text - 任务内容（必填）
+ * @param {string} req.body.publish_department - 任务发布部门（必填）
+ * @param {string} req.body.start_time - 任务开始时间（必填）
+ * @param {string} req.body.ddl - 任务截止时间（必填）
+ * @returns {Promise<Object>} 新增任务结果
+ */
+exports.createTask = async (req, res, next) => {
+    try {
+        // // 权限校验
+        // if (req.user.position !== 'admin') {
+        //     throw new AppError('您没有权限修改该任务', 403, 'NO_PERMISSION');
+        // }
+        const result = await taskService.createTask(req.body);
+        return res.success(result, '任务新增成功', 'TASK_CREATED');
     } catch (error) {
         next(error);
     }
