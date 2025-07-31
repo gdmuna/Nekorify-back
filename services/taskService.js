@@ -61,48 +61,7 @@ exports.getTasks = async (query) => {
 
 
 /**
- * @description 修改任务接口（暂未实现权限校验）
- * @param {Object} req - 请求对象
- * @param {Object} req.params - 路由参数
- * @param {Object} req.params.id - 任务ID
- * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
- * @param {Object} req.body - 请求体
- * @param {string} [req.body.title] - 任务标题（可选）
- * @param {string} [req.body.text] - 任务内容（可选）
- * @param {string} [req.body.publish_department] - 任务发布部门（可选）
- * @param {string} [req.body.start_time] - 任务开始时间（可选）
- * @param {string} [req.body.ddl] - 任务截止时间（可选）
- * @returns {Promise<Object>} 修改结果
- */
-exports.updateTask = async (params) => {
-    // 获取参数
-    const { taskId, ...taskFields } = params;
-    // ID校验
-    console.log("任务id是",taskId);
-    if (!taskId || isNaN(Number(taskId))) {
-        throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
-    }
-    // 查找任务
-    const task = await Task.findByPk(taskId);
-    if (!task) {
-        throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
-    }
-    // 检查是否有需要更新的字段
-    if (Object.keys(taskFields).length === 0) {
-        throw new AppError('至少需要提供一个更新字段', 400, 'MISSING_UPDATE_FIELDS');
-    }
-    // 更新任务主表（tasks表）
-    await Task.update(taskFields, { where: { id: taskId } });
-    // 查询最新任务
-    const updatedTask = await Task.findByPk(taskId);
-    return {
-        updatedTask,
-    };
-};
-
-
-/**
- * @description 新增任务接口
+ * @description 新增任务接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
  * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
  * @param {Object} req.body - 请求体
@@ -161,5 +120,46 @@ exports.deleteTask = async (params) => {
     await TasksUsers.destroy({ where: { task_id: taskId } });
     return {
         taskId,
+    };
+};
+
+
+/**
+ * @description 修改任务接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.body - 请求体
+ * @param {string} [req.body.title] - 任务标题（可选）
+ * @param {string} [req.body.text] - 任务内容（可选）
+ * @param {string} [req.body.publish_department] - 任务发布部门（可选）
+ * @param {string} [req.body.start_time] - 任务开始时间（可选）
+ * @param {string} [req.body.ddl] - 任务截止时间（可选）
+ * @returns {Promise<Object>} 修改结果
+ */
+exports.updateTask = async (params) => {
+    // 获取参数
+    const { taskId, ...taskFields } = params;
+    // ID校验
+    console.log("任务id是",taskId);
+    if (!taskId || isNaN(Number(taskId))) {
+        throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
+    }
+    // 查找任务
+    const task = await Task.findByPk(taskId);
+    if (!task) {
+        throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
+    }
+    // 检查是否有需要更新的字段
+    if (Object.keys(taskFields).length === 0) {
+        throw new AppError('至少需要提供一个更新字段', 400, 'MISSING_UPDATE_FIELDS');
+    }
+    // 更新任务主表（tasks表）
+    await Task.update(taskFields, { where: { id: taskId } });
+    // 查询最新任务
+    const updatedTask = await Task.findByPk(taskId);
+    return {
+        updatedTask,
     };
 };

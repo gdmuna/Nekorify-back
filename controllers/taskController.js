@@ -31,35 +31,6 @@ exports.getTasks = async (req, res, next) => {
 
 
 /**
- * @description 修改任务接口（暂未实现权限校验）
- * @param {Object} req - 请求对象
- * @param {Object} req.params - 路由参数
- * @param {Object} req.params.id - 任务ID
- * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
- * @param {Object} req.body - 请求体
- * @param {string} [req.body.title] - 任务标题（可选）
- * @param {string} [req.body.text] - 任务内容（可选）
- * @param {string} [req.body.publish_department] - 任务发布部门（可选）
- * @param {string} [req.body.start_time] - 任务开始时间（可选）
- * @param {string} [req.body.ddl] - 任务截止时间（可选）
- * @returns {Promise<Object>} 修改结果
- */
-exports.updateTask = async (req, res, next) => {
-    try {
-        // // 权限校验
-        // if (req.user.position !== 'admin') {
-        //     throw new AppError('您没有权限修改该任务', 403, 'NO_PERMISSION');
-        // }
-        const params = { taskId: req.params.id, ...req.body };
-        const result = await taskService.updateTask(params);
-        return res.success(result, '任务修改成功', 'TASK_UPDATED');
-    } catch (error) {
-        next(error);
-    }
-};
-
-
-/**
  * @description 新增任务接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
  * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
@@ -102,6 +73,35 @@ exports.deleteTask = async (req, res, next) => {
         // }
         const result = await taskService.deleteTask(req.params);
         return res.success(result, '任务删除成功', 'TASK_DELETED');
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+/**
+ * @description 修改任务接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.body - 请求体
+ * @param {string} [req.body.title] - 任务标题（可选）
+ * @param {string} [req.body.text] - 任务内容（可选）
+ * @param {string} [req.body.publish_department] - 任务发布部门（可选）
+ * @param {string} [req.body.start_time] - 任务开始时间（可选）
+ * @param {string} [req.body.ddl] - 任务截止时间（可选）
+ * @returns {Promise<Object>} 修改结果
+ */
+exports.updateTask = async (req, res, next) => {
+    try {
+        // // 权限校验
+        // if (req.user.position !== 'admin') {
+        //     throw new AppError('您没有权限修改该任务', 403, 'NO_PERMISSION');
+        // }
+        const params = { taskId: req.params.id, ...req.body };
+        const result = await taskService.updateTask(params);
+        return res.success(result, '任务修改成功', 'TASK_UPDATED');
     } catch (error) {
         next(error);
     }
