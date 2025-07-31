@@ -47,14 +47,14 @@ module.exports = (sequelize, DataTypes) => {
     deletedAt: 'deletedAt', // 设置软删除字段名
     indexes: [
       {
-        fields: ['user_id']
+        fields: ['receiver_id']
       },
       {
         fields: ['message_id']
       },
       {
         unique: true,
-        fields: ['user_id', 'message_id']
+        fields: ['receiver_id', 'message_id']
       }
     ]
   });
