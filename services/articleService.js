@@ -55,6 +55,23 @@ exports.getArticles = async (query) => {
     };
 };
 
+// 获取文章详情接口
+exports.getArticleDetail = async (articleId) => {
+    // 校验ID
+    if (!articleId || isNaN(Number(articleId))) {
+        throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
+    }
+
+    // 查找文章记录
+    const article = await Article.findByPk(articleId);
+    if (!article) {
+        return null; // 文章不存在
+    }
+    await article.increment('views'); // 观看数增加
+    // 返回文章详情
+    return article;
+};
+
 // 新增文章接口
 exports.addArticle = async (title, textUrl, userInfo, cover_url, ) => {
     if (!title || !textUrl || !cover_url) {
