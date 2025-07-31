@@ -49,6 +49,27 @@ exports.getAnnouncements = async (query) => {
 
 
 /**
+ * @description 获取公告详情接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 请求参数
+ * @param {number} req.params.id - 公告ID
+ * @returns {Promise<Object>} 公告详情信息
+ */
+exports.getAnnouncementDetail = async (announcementId) => {
+    // 查询公告
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) {
+        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
+    }
+    // 浏览量加一
+    announcement.views += 1 ;
+    await announcement.save();
+    return announcement;
+};
+
+
+
+/**
  * @description 新增公告接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
  * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现

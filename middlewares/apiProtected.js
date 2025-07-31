@@ -4,6 +4,7 @@ const casdoor = require('../config/casdoorConfigs');
 const whiteList = [
   /^\/api\/auth/,
   /^\/api\/announcement\/$/,
+  /^\/api\/announcement(\/\d+)?$/,
   /^\/api\/article\/$/,
   /^\/api\/replay\/$/,
   /^\/api\/schedule/,

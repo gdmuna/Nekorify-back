@@ -9,6 +9,8 @@ const announcementController = require('../controllers/announcementController.js
 
 // 获取公告列表
 router.get('/', announcementController.getAnnouncements);
+// 获取公告详情
+router.get('/:id', announcementController.getAnnouncementDetail);
 // 新增公告
 router.post('/add', announcementController.createAnnouncement);
 // 删除公告
