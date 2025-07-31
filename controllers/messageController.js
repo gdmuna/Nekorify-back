@@ -41,6 +41,10 @@ exports.getMessageDetail = async (req, res, next) => {
 
 exports.addMessage = async (req, res, next) => {
     try {
+        // 权限校验
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+            throw new AppError('您没有权限发送消息', 403, 'NO_PERMISSION');
+        }
         const messageData = req.body;
         const userInfo = req.user; // 获取当前用户信息
         const result = await messageService.addMessage(messageData, userInfo);
