@@ -21,6 +21,6 @@ router.put('/:id', articleController.updateArticle);
 router.delete('/:id', articleController.deleteArticle);
 
 // 新增文章
-router.post('/addArticle', articleController.addArticle);
+router.post('/', articleController.addArticle);
 
 module.exports = router;

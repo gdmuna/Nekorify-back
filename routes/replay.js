@@ -11,7 +11,7 @@ router.get('/', replayController.getReplays);
 // 获取课程回放详情
 router.get('/:id', replayController.getReplayDetail);
 // 添加课程回放
-router.post('/addReplay', replayController.addReplay);
+router.post('/', replayController.addReplay);
 // 更新课程回放
 router.put('/:id', replayController.updateReplay);
 // 删除课程回放

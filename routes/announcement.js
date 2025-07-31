@@ -12,7 +12,7 @@ router.get('/', announcementController.getAnnouncements);
 // 获取公告详情
 router.get('/:id', announcementController.getAnnouncementDetail);
 // 新增公告
-router.post('/add', announcementController.createAnnouncement);
+router.post('/', announcementController.createAnnouncement);
 // 删除公告
 router.delete('/:id', announcementController.deleteAnnouncement);
 // 更新公告

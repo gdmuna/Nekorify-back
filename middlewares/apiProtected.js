@@ -2,20 +2,30 @@ const casdoor = require('../config/casdoorConfigs');
 
 // 路由白名单
 const whiteList = [
-  /^\/api\/auth/,
-  /^\/api\/announcement\/$/,
-  /^\/api\/announcement(\/\d+)?$/,
-  /^\/api\/article\/$/,
-  /^\/api\/article(\/\d+)?$/,
-  /^\/api\/replay\/$/,
-  /^\/api\/replay(\/\d+)?$/,
-  /^\/api\/schedule/,
+  { method: 'GET', path: /^\/api\/auth/ },
+  { method: 'POST', path: /^\/api\/auth/ },
+  { method: 'GET', path: /^\/api\/announcement\/$/ },
+  { method: 'GET', path: /^\/api\/announcement(\/\d+)?$/ },
+  { method: 'GET', path: /^\/api\/article\/$/ },
+  { method: 'GET', path: /^\/api\/article(\/\d+)?$/ },
+  { method: 'GET', path: /^\/api\/replay\/$/ },
+  { method: 'GET', path: /^\/api\/replay(\/\d+)?$/ },
 ];
+// const whiteList = [
+//   /^\/api\/auth/,
+//   /^\/api\/announcement\/$/,
+//   /^\/api\/announcement(\/\d+)?$/,
+//   /^\/api\/article\/$/,
+//   /^\/api\/article(\/\d+)?$/,
+//   /^\/api\/replay\/$/,
+//   /^\/api\/replay(\/\d+)?$/,
+//   /^\/api\/schedule/,
+// ];
 
 // 白名单函数
-function isWhiteListed(path) {
+function isWhiteListed(method, path) {
   return whiteList.some(item =>
-    typeof item === 'string' ? item === path : item.test(path)
+    item.method === method && item.path.test(path)
   );
 }
 
@@ -23,7 +33,7 @@ function isWhiteListed(path) {
 module.exports = async (req, res, next) => {
   try {
     // 判断是否在白名单
-    if (isWhiteListed(req.path)) {
+    if (isWhiteListed(req.method, req.path)) {
       return next();
     }
 
