@@ -7,6 +7,7 @@ const whiteList = [
   /^\/api\/announcement(\/\d+)?$/,
   /^\/api\/article\/$/,
   /^\/api\/replay\/$/,
+  /^\/api\/replay(\/\d+)?$/,
   /^\/api\/schedule/,
 ];
 
