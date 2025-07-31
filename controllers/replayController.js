@@ -1,4 +1,5 @@
 const replayService = require('../services/replayService');
+const AppError = require('../utils/AppError');
 
 /**
  * @description 课程回放控制器

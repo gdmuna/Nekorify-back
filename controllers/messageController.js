@@ -1,4 +1,5 @@
 const messageService = require('../services/messageService');
+const AppError = require('../utils/AppError');
 
 /**
  * @description 消息控制器

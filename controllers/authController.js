@@ -1,5 +1,6 @@
 const authService = require('../services/authService');
 const AppError = require('../utils/AppError');
+
 /**
  * @description 认证控制器
  * @module controllers/authController
