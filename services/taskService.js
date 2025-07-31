@@ -1,4 +1,4 @@
-const { Task, User } = require('../models');
+const { Task, User, TasksUsers } = require('../models');
 const AppError = require('../utils/AppError');
 
 /**
@@ -7,10 +7,9 @@ const AppError = require('../utils/AppError');
  */
 
 /**
- * @description 获取任务列表接口
+ * @description 查询本用户的任务列表接口
  * @param {Object} req - 请求对象
  * @param {Object} req.query - 查询参数（可选）
- * @param {string} [req.query.stuId] - 学生ID（可选）
  * @param {number} [req.query.currentPage] - 当前页码（可选）
  * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Object>} 任务列表及分页信息
@@ -21,26 +20,22 @@ exports.getTasks = async (query) => {
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
-    // 校验stuId是否为数字
-    if (query.stuId && isNaN(Number(query.stuId))) {
-        throw new AppError('学生ID输入错误', 400, 'INVALID_STUID');
+    // 只允许查自己的任务
+    const stuId = query.stuId;
+    const userInfo = await User.findOne({ where: { stu_id: stuId } });
+    if (!userInfo) {
+        throw new AppError('学生用户不存在', 404, 'STUID_NOT_FOUND');
     }
 
-    // 设置查询条件
-    const where = {};
-    if (query.stuId) {
-        const userInfo = await User.findOne({
-            where: { stu_id: query.stuId }
-        });
-        if (!userInfo) {
-            throw new AppError('获取任务失败 学生ID不存在', 404, 'STUID_NOT_FOUND');
-        }
-        where.executor_id = userInfo.id; // 使用userId进行查询
-    }
+    // 查找该用户参与的所有任务id
+    // 先查TasksUsers关联表
+    const tasksUsers = await TasksUsers.findAll({ where: { executor_id: userInfo.id } });
+    // 查Task表，取出每个元素的 task_id 字段放到数组中
+    const taskIds = tasksUsers.map(tu => tu.task_id);
 
     // 设置任务查询条件
     const condition = {
-        where,
+        where: { id: taskIds },
         order: [['createdAt', 'DESC']],
         offset,
         limit: pageSize,
@@ -66,47 +61,105 @@ exports.getTasks = async (query) => {
 
 
 /**
- * @description 修改任务接口
+ * @description 新增任务接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.body - 请求体
+ * @param {Array<number>} req.body.exectorIds - 学生ID数组，支持多个人（必填）
+ * @param {string} req.body.title - 任务标题（必填）
+ * @param {string} req.body.text - 任务内容（必填）
+ * @param {string} req.body.publish_department - 任务发布部门（必填）
+ * @param {string} req.body.start_time - 任务开始时间（必填）
+ * @param {string} req.body.ddl - 任务截止时间（必填）
+ * @returns {Promise<Object>} 新增任务结果
+ */
+exports.createTask = async (params) => {
+    // 参数校验
+    if (!params.exectorIds || !params.title || !params.text || !params.publish_department || !params.start_time || !params.ddl) {
+        throw new AppError('任务标题、内容、发布部门、开始时间、截止时间和执行者id都是必填项', 400, 'MISSING_REQUIRED_FIELDS');
+    }
+    // 创建任务
+    const { exectorIds, ...taskFields } = params;
+    const task = await Task.create(taskFields);
+    // 创建任务-用户关联
+    if (Array.isArray(exectorIds) && exectorIds.length > 0) {
+        const taskUserRecords = exectorIds.map(executorId => ({
+            task_id: task.id,
+            executor_id: executorId
+        }));
+        await TasksUsers.bulkCreate(taskUserRecords);
+    }
+    return {
+        task,
+    };
+};
+
+
+/**
+ * @description 删除任务接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
  * @param {Object} req.params - 路由参数
  * @param {Object} req.params.id - 任务ID
- * @param {Object} req.body - 请求体
- * @param {string} [req.body.title] - 任务标题（可选）
- * @param {string} [req.body.text] - 任务内容（可选）
- * @param {string} [req.body.start_time] - 任务开始时间（可选）
- * @param {string} [req.body.ddl] - 任务截止时间（可选）
- * @returns {Promise<Object>} 修改结果
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @returns {Promise<Object>} 删除结果
  */
-exports.updateTask = async (taskId, stuId, title, text, start_time, ddl) => {
-    // 校验任务ID是否为数字
+exports.deleteTask = async (params) => {
+    const taskId = params.id;
+    // ID校验
     if (!taskId || isNaN(Number(taskId))) {
         throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
     }
-    // 校验更新字段是否为空
-    if (!title && !text && !start_time && !ddl) {
-        throw new AppError('至少需要提供一个更新字段', 400, 'MISSING_UPDATE_FIELDS');
-    }
-    // 校验任务是否存在
+    // 查找任务
     const task = await Task.findByPk(taskId);
     if (!task) {
         throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
     }
-    // 通过user表的stu_id对应的id来查找task表内的executor_id
-    const userInfo = await User.findByPk(stuId);
-    if (userInfo.stu_id !== stuId) {
-        throw new AppError('该学生暂无任务', 403, 'STU_NOT_TASK');
-    }
-    // 校验学生是否为任务执行人
-    if (task.executor_id !== userInfo.id) {
-        throw new AppError('该学生不是任务执行人', 403, 'STU_NOT_EXECUTOR');
-    }
+    // 删除任务
+    await Task.destroy({ where: { id: taskId } });
+    // 删除关联记录
+    await TasksUsers.destroy({ where: { task_id: taskId } });
+    return {
+        taskId,
+    };
+};
 
-    if (!updateUrl) {
-        throw new AppError('缺少 text_md_url', 400, 'MISSING_TEXT_MD_URL');
+
+/**
+ * @description 修改任务接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.body - 请求体
+ * @param {string} [req.body.title] - 任务标题（可选）
+ * @param {string} [req.body.text] - 任务内容（可选）
+ * @param {string} [req.body.publish_department] - 任务发布部门（可选）
+ * @param {string} [req.body.start_time] - 任务开始时间（可选）
+ * @param {string} [req.body.ddl] - 任务截止时间（可选）
+ * @returns {Promise<Object>} 修改结果
+ */
+exports.updateTask = async (params) => {
+    // 获取参数
+    const { taskId, ...taskFields } = params;
+    // ID校验
+    console.log("任务id是",taskId);
+    if (!taskId || isNaN(Number(taskId))) {
+        throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
     }
-
-    article.text_md_url = updateUrl;
-    await article.save();
-
-    return article;
+    // 查找任务
+    const task = await Task.findByPk(taskId);
+    if (!task) {
+        throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
+    }
+    // 检查是否有需要更新的字段
+    if (Object.keys(taskFields).length === 0) {
+        throw new AppError('至少需要提供一个更新字段', 400, 'MISSING_UPDATE_FIELDS');
+    }
+    // 更新任务主表（tasks表）
+    await Task.update(taskFields, { where: { id: taskId } });
+    // 查询最新任务
+    const updatedTask = await Task.findByPk(taskId);
+    return {
+        updatedTask,
+    };
 };

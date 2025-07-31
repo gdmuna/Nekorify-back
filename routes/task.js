@@ -9,6 +9,10 @@ const taskController = require('../controllers/taskController');
 
 // 获取任务列表
 router.get('/', taskController.getTasks);
+// 新增任务
+router.post('/', taskController.createTask);
+// 删除任务
+router.delete('/:id', taskController.deleteTask);
 // 修改任务
 router.put('/:id', taskController.updateTask);
 

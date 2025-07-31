@@ -21,10 +21,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      executor_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
       start_time: {
         allowNull: false,
         type: Sequelize.DATE
