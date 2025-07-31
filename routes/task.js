@@ -13,5 +13,7 @@ router.get('/', taskController.getTasks);
 router.put('/:id', taskController.updateTask);
 // 新增任务
 router.post('/', taskController.createTask);
+// 删除任务
+router.delete('/:id', taskController.deleteTask);
 
 module.exports = router;

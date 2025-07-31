@@ -134,3 +134,32 @@ exports.createTask = async (params) => {
         task,
     };
 };
+
+
+/**
+ * @description 删除任务接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @returns {Promise<Object>} 删除结果
+ */
+exports.deleteTask = async (params) => {
+    const taskId = params.id;
+    // ID校验
+    if (!taskId || isNaN(Number(taskId))) {
+        throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
+    }
+    // 查找任务
+    const task = await Task.findByPk(taskId);
+    if (!task) {
+        throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
+    }
+    // 删除任务
+    await Task.destroy({ where: { id: taskId } });
+    // 删除关联记录
+    await TasksUsers.destroy({ where: { task_id: taskId } });
+    return {
+        taskId,
+    };
+};

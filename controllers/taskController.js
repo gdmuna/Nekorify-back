@@ -60,7 +60,7 @@ exports.updateTask = async (req, res, next) => {
 
 
 /**
- * @description 新增任务接口
+ * @description 新增任务接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
  * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
  * @param {Object} req.body - 请求体
@@ -80,6 +80,28 @@ exports.createTask = async (req, res, next) => {
         // }
         const result = await taskService.createTask(req.body);
         return res.success(result, '任务新增成功', 'TASK_CREATED');
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+/**
+ * @description 删除任务接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @returns {Promise<Object>} 删除结果
+ */
+exports.deleteTask = async (req, res, next) => {
+    try {
+        // // 权限校验
+        // if (req.user.position !== 'admin') {
+        //     throw new AppError('您没有权限删除该任务', 403, 'NO_PERMISSION');
+        // }
+        const result = await taskService.deleteTask(req.params);
+        return res.success(result, '任务删除成功', 'TASK_DELETED');
     } catch (error) {
         next(error);
     }
