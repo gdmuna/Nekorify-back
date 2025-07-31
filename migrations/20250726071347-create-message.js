@@ -38,6 +38,7 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('user_message_statuses');
     await queryInterface.dropTable('messages');
   }
-};
+}; 

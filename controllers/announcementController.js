@@ -1,4 +1,5 @@
 const announcementService = require('../services/announcementService');
+const AppError = require('../utils/AppError');
 
 /**
  * @description 公告控制器
@@ -24,6 +25,28 @@ exports.getAnnouncements = async (req, res, next) => {
         next(error); // 交给错误处理中间件
     }
 };
+
+
+/**
+ * @description 获取公告详情接口
+ * @param {Object} req - 请求对象
+ * @param {number} req.params.id - 公告ID
+ * @returns {Promise<Object>} 公告详情
+ */
+exports.getAnnouncementDetail = async (req, res, next) => {
+    try {
+        const announcementId = req.params.id;
+        if (!announcementId) {
+            throw new AppError('公告ID不能为空', 400, 'MISSING_ANNOUNCEMENT_ID');
+        }
+        const result = await announcementService.getAnnouncementDetail(announcementId);
+        return res.success(result, '查询成功', 'SUCCESS');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+
 
 
 /**

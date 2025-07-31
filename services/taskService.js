@@ -1,5 +1,6 @@
 const { Task, User, TasksUsers } = require('../models');
 const AppError = require('../utils/AppError');
+const { sequelize } = require('../models');
 
 /**
  * @description 任务服务
@@ -74,24 +75,31 @@ exports.getTasks = async (query) => {
  * @returns {Promise<Object>} 新增任务结果
  */
 exports.createTask = async (params) => {
+    const transaction = await sequelize.transaction();// 开启事务
     // 参数校验
     if (!params.exectorIds || !params.title || !params.text || !params.publish_department || !params.start_time || !params.ddl) {
         throw new AppError('任务标题、内容、发布部门、开始时间、截止时间和执行者id都是必填项', 400, 'MISSING_REQUIRED_FIELDS');
     }
-    // 创建任务
-    const { exectorIds, ...taskFields } = params;
-    const task = await Task.create(taskFields);
-    // 创建任务-用户关联
-    if (Array.isArray(exectorIds) && exectorIds.length > 0) {
-        const taskUserRecords = exectorIds.map(executorId => ({
-            task_id: task.id,
-            executor_id: executorId
-        }));
-        await TasksUsers.bulkCreate(taskUserRecords);
+    try {
+        // 创建任务
+        const { exectorIds, ...taskFields } = params;
+        const task = await Task.create(taskFields, { transaction: transaction });
+        // 创建任务-用户关联
+        if (Array.isArray(exectorIds) && exectorIds.length > 0) {
+            const taskUserRecords = exectorIds.map(executorId => ({
+                task_id: task.id,
+                executor_id: executorId
+            }));
+            await TasksUsers.bulkCreate(taskUserRecords, { transaction: transaction });
+        }
+        await transaction.commit(); // 提交事务
+        return {
+            task,
+        };
+    } catch (error) {
+        await transaction.rollback(); // 回滚事务
+        throw error;
     }
-    return {
-        task,
-    };
 };
 
 
@@ -109,18 +117,25 @@ exports.deleteTask = async (params) => {
     if (!taskId || isNaN(Number(taskId))) {
         throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
     }
-    // 查找任务
-    const task = await Task.findByPk(taskId);
-    if (!task) {
-        throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
+    const transaction = await sequelize.transaction(); // 开启事务
+    try {
+        // 查找任务
+        const task = await Task.findByPk(taskId);
+        if (!task) {
+            throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
+        }
+        // 删除任务
+        await Task.destroy({ where: { id: taskId } }, { transaction: transaction });
+        // 删除关联记录
+        await TasksUsers.destroy({ where: { task_id: taskId } }, { transaction: transaction });
+        await transaction.commit(); // 提交事务
+        return {
+            taskId,
+        };
+    } catch (error) {
+        await transaction.rollback(); // 回滚事务
+        throw error;
     }
-    // 删除任务
-    await Task.destroy({ where: { id: taskId } });
-    // 删除关联记录
-    await TasksUsers.destroy({ where: { task_id: taskId } });
-    return {
-        taskId,
-    };
 };
 
 
@@ -142,7 +157,7 @@ exports.updateTask = async (params) => {
     // 获取参数
     const { taskId, ...taskFields } = params;
     // ID校验
-    console.log("任务id是",taskId);
+    console.log("任务id是", taskId);
     if (!taskId || isNaN(Number(taskId))) {
         throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
     }

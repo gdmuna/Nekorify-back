@@ -15,7 +15,7 @@ module.exports = {
         references: {
           model: 'users',
           key: 'id'
-        }, 
+        },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -48,6 +48,7 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('User_message_statuses');
+    await queryInterface.dropTable('user_message_statuses');
+    await queryInterface.dropTable('messages');
   }
 };
