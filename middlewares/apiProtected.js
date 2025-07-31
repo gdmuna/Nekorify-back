@@ -11,16 +11,6 @@ const whiteList = [
   { method: 'GET', path: /^\/api\/replay\/$/ },
   { method: 'GET', path: /^\/api\/replay(\/\d+)?$/ },
 ];
-// const whiteList = [
-//   /^\/api\/auth/,
-//   /^\/api\/announcement\/$/,
-//   /^\/api\/announcement(\/\d+)?$/,
-//   /^\/api\/article\/$/,
-//   /^\/api\/article(\/\d+)?$/,
-//   /^\/api\/replay\/$/,
-//   /^\/api\/replay(\/\d+)?$/,
-//   /^\/api\/schedule/,
-// ];
 
 // 白名单函数
 function isWhiteListed(method, path) {
