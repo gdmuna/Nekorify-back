@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       // 关联到 User 表
       User_message_status.belongsTo(models.User, {
-        foreignKey: ' receiver_id',
+        foreignKey: 'receiver_id',
         targetKey: 'id'
       });
     }
