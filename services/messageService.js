@@ -79,7 +79,7 @@ exports.getMessagesByUserInfo = async (userInfo, query = {}) => {
 
     // 2. 查询用户的所有消息状态，拿到 message_id
     const userMessageStatuses = await User_message_status.findAll({
-        where: { receiver_id: user.id }, // 或 user_id，字段名按你的表结构调整
+        where: { receiver_id: user.id },
         attributes: ['message_id']
     });
 

@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // 关联到用户消息状态表
       this.hasMany(models.User_message_status, {
-        foreignKey: 'user_id',
+        foreignKey: ' receiver_id',
         sourceKey: 'id'
       });
       // 关联到文章表
