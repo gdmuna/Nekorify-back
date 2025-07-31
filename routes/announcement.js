@@ -9,11 +9,11 @@ const announcementController = require('../controllers/announcementController.js
 
 // 获取公告列表
 router.get('/', announcementController.getAnnouncements);
-// 更新公告
-router.put('/:id', announcementController.updateAnnouncement);
+// 新增公告
+router.post('/add', announcementController.createAnnouncement);
 // 删除公告
 router.delete('/:id', announcementController.deleteAnnouncement);
-// 新增公告
-router.post('/', announcementController.createAnnouncement);
+// 更新公告
+router.put('/:id', announcementController.updateAnnouncement);
 
 module.exports = router;

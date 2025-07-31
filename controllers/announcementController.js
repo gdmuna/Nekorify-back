@@ -27,8 +27,58 @@ exports.getAnnouncements = async (req, res, next) => {
 
 
 /**
- * @description 修改公告接口
+ * @description 新增公告接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.body - 公告数据
+ * @param {string} req.body.title - 公告标题 (必填)
+ * @param {string} [req.body.cover_url] - 公告封面URL (可选)
+ * @param {string} [req.body.author] - 公告作者 (必填)
+ * @param {string} [req.body.department] - 发布部门 (必填)
+ * @param {string} [req.body.text_md_url] - 公告Markdown文本URL (必填)
+ * @returns {Promise<Object>} 新增的公告信息
+ */
+exports.createAnnouncement = async (req, res, next) => {
+    try {
+        // // 权限校验
+        // if (req.user.position !== 'admin') {
+        //     throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
+        // }
+        const announcementData = req.body;
+        const result = await announcementService.createAnnouncement(announcementData);
+        return res.success(result, '公告新增成功', 'ANNOUNCEMENT_CREATED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+
+/**
+ * @description 删除公告接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象  
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {number} req.params.id - 公告ID
+ * @returns {Promise<Object>} 删除结果
+ */
+exports.deleteAnnouncement = async (req, res, next) => {
+    try {
+        // // 权限校验
+        // if (req.user.position !== 'admin') {
+        //     throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
+        // }
+        const announcementId = req.params.id;
+        const result = await announcementService.deleteAnnouncement(announcementId);
+        return res.success(result, '公告删除成功', 'ANNOUNCEMENT_DELETED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+
+/**
+ * @description 修改公告接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {number} req.user.position - 用户职位，用于校验修改权限       //暂未实现
  * @param {number} req.params.id - 公告ID
  * @param {Object} req.body - 更新数据
  * @param {string} [req.body.title] - 公告标题（可选）
@@ -40,49 +90,14 @@ exports.getAnnouncements = async (req, res, next) => {
  */
 exports.updateAnnouncement = async (req, res, next) => {
     try {
+        // // 权限校验
+        // if (req.user.position !== 'admin') {
+        //     throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
+        // }
         const announcementId = req.params.id;
         const updateData = req.body;
         const result = await announcementService.updateAnnouncement(announcementId, updateData);
         return res.success(result, '公告更新成功', 'ANNOUNCEMENT_UPDATED');
-    } catch (error) {
-        next(error); // 交给错误处理中间件
-    }
-};
-
-
-/**
- * @description 删除公告接口
- * @param {Object} req - 请求对象
- * @param {number} req.params.id - 公告ID
- * @returns {Promise<Object>} 删除结果
- */
-exports.deleteAnnouncement = async (req, res, next) => {
-    try {
-        const announcementId = req.params.id;
-        const result = await announcementService.deleteAnnouncement(announcementId);
-        return res.success(result, '公告删除成功', 'ANNOUNCEMENT_DELETED');
-    } catch (error) {
-        next(error); // 交给错误处理中间件
-    }
-};
-
-
-/**
- * @description 新增公告接口
- * @param {Object} req - 请求对象
- * @param {Object} req.body - 公告数据
- * @param {string} req.body.title - 公告标题 (必填)
- * @param {string} [req.body.cover_url] - 公告封面URL (可选)
- * @param {string} [req.body.author] - 公告作者 (必填)
- * @param {string} [req.body.department] - 发布部门 (必填)
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL (必填)
- * @returns {Promise<Object>} 新增的公告信息
- */
-exports.createAnnouncement = async (req, res, next) => {
-    try {
-        const announcementData = req.body;
-        const result = await announcementService.createAnnouncement(announcementData);
-        return res.success(result, '公告新增成功', 'ANNOUNCEMENT_CREATED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }

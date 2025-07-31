@@ -49,72 +49,9 @@ exports.getAnnouncements = async (query) => {
 
 
 /**
- * @description 修改公告接口
+ * @description 新增公告接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
- * @param {number} req.params.id - 公告ID
- * @param {Object} req.body - 更新数据
- * @param {string} [req.body.title] - 公告标题（可选）
- * @param {string} [req.body.cover_url] - 公告封面URL（可选）
- * @param {string} [req.body.author] - 公告作者（可选）
- * @param {string} [req.body.department] - 发布部门（可选）
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL（可选）
- * @returns {Promise<Object>} 更新后的公告信息
- */
-exports.updateAnnouncement = async (announcementId, updateData) => {
-    // 检验公告ID是否有效
-    if (!announcementId || isNaN(Number(announcementId))) {
-        throw new AppError('公告ID无效', 400, 'INVALID_ANNOUNCEMENT_ID');
-    }
-    // 检验传入的更新数据是否有效
-    if (!updateData || typeof updateData !== 'object') {
-        throw new AppError('更新数据无效', 400, 'INVALID_UPDATE_DATA');
-    }
-    // 检验公告是否存在
-    const announcement = await Announcement.findByPk(announcementId);
-    if (!announcement) {
-        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
-    }
-    // 更新公告
-    if (updateData.title !== undefined) announcement.title = updateData.title;
-    if (updateData.cover_url !== undefined) announcement.cover_url = updateData.cover_url;
-    if (updateData.author !== undefined) announcement.author = updateData.author;
-    if (updateData.department !== undefined) announcement.department = updateData.department;
-    if (updateData.text_md_url !== undefined) announcement.text_md_url = updateData.text_md_url;
-
-    await announcement.save();
-
-    return announcement;
-};
-
-
-/**
- * @description 删除公告接口
- * @param {Object} req - 请求对象
- * @param {number} req.params.id - 公告ID
- * @returns {Promise<Object>} 删除结果
- */
-exports.deleteAnnouncement = async (announcementId, stuId) => {
-    // 校验ID
-    if (!announcementId || isNaN(Number(announcementId))) {
-        throw new AppError('公告ID无效', 400, 'INVALID_ANNOUNCEMENT_ID');
-    }
-
-    // 查找公告
-    const announcement = await Announcement.findByPk(announcementId);
-    if (!announcement) {
-        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
-    }
-
-    // 软删除公告
-    await announcement.destroy();
-    
-    return announcement; // 返回被删除的公告信息
-};
-
-
-/**
- * @description 新增公告接口
- * @param {Object} req - 请求对象
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
  * @param {Object} req.body - 公告数据
  * @param {string} req.body.title - 公告标题 (必填)
  * @param {string} [req.body.cover_url] - 公告封面URL (可选)
@@ -160,5 +97,71 @@ exports.createAnnouncement = async (announcementData) => {
     if (!announcement) {
         throw new AppError('新增公告失败', 500, 'ANNOUNCEMENT_CREATION_FAILED');
     }
+    return announcement;
+};
+
+
+/**
+ * @description 删除公告接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象  
+ * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {number} req.params.id - 公告ID
+ * @returns {Promise<Object>} 删除结果
+ */
+exports.deleteAnnouncement = async (announcementId, stuId) => {
+    // 校验ID
+    if (!announcementId || isNaN(Number(announcementId))) {
+        throw new AppError('公告ID无效', 400, 'INVALID_ANNOUNCEMENT_ID');
+    }
+
+    // 查找公告
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) {
+        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
+    }
+
+    // 软删除公告
+    await announcement.destroy();
+    
+    return announcement; // 返回被删除的公告信息
+};
+
+
+/**
+ * @description 修改公告接口（暂未实现权限校验）
+ * @param {Object} req - 请求对象
+ * @param {number} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {number} req.params.id - 公告ID
+ * @param {Object} req.body - 更新数据
+ * @param {string} [req.body.title] - 公告标题（可选）
+ * @param {string} [req.body.cover_url] - 公告封面URL（可选）
+ * @param {string} [req.body.author] - 公告作者（可选）
+ * @param {string} [req.body.department] - 发布部门（可选）
+ * @param {string} [req.body.text_md_url] - 公告Markdown文本URL（可选）
+ * @returns {Promise<Object>} 更新后的公告信息
+ */
+exports.updateAnnouncement = async (announcementId, updateData) => {
+    // 检验公告ID是否有效
+    if (!announcementId || isNaN(Number(announcementId))) {
+        throw new AppError('公告ID无效', 400, 'INVALID_ANNOUNCEMENT_ID');
+    }
+    // 检验传入的更新数据是否有效
+    if (!updateData || typeof updateData !== 'object') {
+        throw new AppError('更新数据无效', 400, 'INVALID_UPDATE_DATA');
+    }
+    // 检验公告是否存在
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) {
+        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
+    }
+    // 更新公告
+    if (updateData.title !== undefined) announcement.title = updateData.title;
+    if (updateData.cover_url !== undefined) announcement.cover_url = updateData.cover_url;
+    if (updateData.author !== undefined) announcement.author = updateData.author;
+    if (updateData.department !== undefined) announcement.department = updateData.department;
+    if (updateData.text_md_url !== undefined) announcement.text_md_url = updateData.text_md_url;
+
+    await announcement.save();
+
     return announcement;
 };
