@@ -5,7 +5,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     const messages = [];
     const counts = 5;
-  
+
     for (let i = 1; i <= counts; i++) {
       const message = {
         id: i,
@@ -16,7 +16,14 @@ module.exports = {
       };
       messages.push(message);
     }
-  
+    // 加入一条特殊消息
+    messages.push({
+      id: counts + 1,
+      text: 'doro！欧润吉！',
+      sender_id: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     await queryInterface.bulkInsert('messages', messages, {});
   },
 

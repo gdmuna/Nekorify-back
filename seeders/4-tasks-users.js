@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('tasks_users', [
       {
         task_id: 1,
@@ -16,7 +16,7 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-            {
+      {
         task_id: 3,
         executor_id: 5,
         createdAt: new Date(),
@@ -37,7 +37,7 @@ module.exports = {
     ]);
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('tasks_users', null, {});
   }
 };
