@@ -10,7 +10,7 @@ exports.getAllArticles = async (req, res, next) => {
     try {
         const result = await articleService.getArticles(req.query);
         if (!result.articles || result.articles.length === 0) {
-            return res.success(result, '没有查询到相关文章', 'NO_ARTICLE');
+            return res.success(result, '没有查询到相关文章', 'ARTICLE_NOT_FOUND');
         }
         return res.success(result, '查询成功', 'SUCCESS');
     } catch (error) {
@@ -24,7 +24,7 @@ exports.getArticleDetail = async (req, res, next) => {
         const articleId = req.params.id; // 获取文章ID
         const result = await articleService.getArticleDetail(articleId);
         if (!result) {
-            return res.error('文章不存在', 'ARTICLE_NOT_FOUND', 404);
+            return res.success(result, '文章不存在', 'ARTICLE_NOT_FOUND');
         }
         return res.success(result, '查询成功', 'SUCCESS');
     } catch (error) {
