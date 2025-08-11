@@ -73,7 +73,9 @@ exports.getUserInfo = async function(accessToken) {
         console.log('获取到的用户信息:', userInfo);
         return (userInfo);
     } catch (error) {
-        console.error('获取用户信息失败:', error);
-        return (error);
+        let msg = error?.response?.data?.error_description || error.message || '刷新AccessToken失败，请稍后再试';
+        let code = error?.response?.data?.error || 'REFRESH_TOKEN_FAILED';
+        let status = error?.response?.status || 400;
+        throw new AppError(msg, status, code);
     }
 };
