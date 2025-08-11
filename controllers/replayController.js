@@ -44,7 +44,7 @@ exports.getReplayDetail = async (req, res, next) => {
 exports.addReplay = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
             throw new AppError('您没有权限新增回放', 403, 'NO_PERMISSION');
         }
         const replayData = req.body;

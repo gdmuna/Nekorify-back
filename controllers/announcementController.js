@@ -64,7 +64,7 @@ exports.getAnnouncementDetail = async (req, res, next) => {
 exports.createAnnouncement = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
             throw new AppError('您没有权限新增公告', 403, 'NO_PERMISSION');
         }
         const announcementData = req.body;
