@@ -58,7 +58,7 @@ exports.addReplay = async (req, res, next) => {
 exports.updateReplay = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
             throw new AppError('您没有权限更新回放', 403, 'NO_PERMISSION');
         }
         const replayId = req.params.id;
@@ -76,7 +76,7 @@ exports.updateReplay = async (req, res, next) => {
 exports.deleteReplay = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
             throw new AppError('您没有权限删除回放', 403, 'NO_PERMISSION');
         }
         const replayId = req.params.id;

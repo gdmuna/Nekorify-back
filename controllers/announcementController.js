@@ -87,7 +87,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
     try {
         console.log(req.user);
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
             throw new AppError('您没有权限删除该公告', 403, 'NO_PERMISSION');
         }
         const announcementId = req.params.id;
@@ -115,7 +115,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
 exports.updateAnnouncement = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidenc')) {
             throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
         }
         const announcementId = req.params.id;

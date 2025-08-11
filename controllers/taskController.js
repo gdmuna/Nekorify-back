@@ -68,7 +68,7 @@ exports.createTask = async (req, res, next) => {
 exports.deleteTask = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
             throw new AppError('您没有权限删除该任务', 403, 'NO_PERMISSION');
         }
         const result = await taskService.deleteTask(req.params);
@@ -96,7 +96,7 @@ exports.deleteTask = async (req, res, next) => {
 exports.updateTask = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-president' || g === 'gdmu/NA-president')) {
+        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
             throw new AppError('您没有权限修改该任务', 403, 'NO_PERMISSION');
         }
         const params = { taskId: req.params.id, ...req.body };
