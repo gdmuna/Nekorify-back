@@ -20,7 +20,7 @@ exports.getAnnouncements = async (req, res, next) => {
         if (!result.announcements || result.announcements.length === 0) {
             return res.success(result, '没有查询到相关公告', 'ANNOUNCEMENT_NOT_FOUND');
         }
-        return res.success(result, '查询成功', 'SUCCESS');
+        return res.success(result, 200 ,'查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -40,7 +40,7 @@ exports.getAnnouncementDetail = async (req, res, next) => {
             throw new AppError('公告ID不能为空', 400, 'MISSING_ANNOUNCEMENT_ID');
         }
         const result = await announcementService.getAnnouncementDetail(announcementId);
-        return res.success(result, '查询成功', 'SUCCESS');
+        return res.success(result, 200 ,'查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -69,7 +69,7 @@ exports.createAnnouncement = async (req, res, next) => {
         }
         const announcementData = req.body;
         const result = await announcementService.createAnnouncement(announcementData);
-        return res.success(result, '公告新增成功', 'ANNOUNCEMENT_CREATED');
+        return res.success(result, 201,'公告新增成功', 'ANNOUNCEMENT_CREATED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -92,7 +92,7 @@ exports.deleteAnnouncement = async (req, res, next) => {
         }
         const announcementId = req.params.id;
         const result = await announcementService.deleteAnnouncement(announcementId);
-        return res.success(result, '公告删除成功', 'ANNOUNCEMENT_DELETED');
+        return res.success(result, 204,'公告删除成功', 'ANNOUNCEMENT_DELETED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -121,7 +121,7 @@ exports.updateAnnouncement = async (req, res, next) => {
         const announcementId = req.params.id;
         const updateData = req.body;
         const result = await announcementService.updateAnnouncement(announcementId, updateData);
-        return res.success(result, '公告更新成功', 'ANNOUNCEMENT_UPDATED');
+        return res.success(result, 201 ,'公告更新成功', 'ANNOUNCEMENT_UPDATED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }

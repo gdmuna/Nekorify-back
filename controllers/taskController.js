@@ -21,9 +21,9 @@ exports.getTasks = async (req, res, next) => {
         }
         const result = await taskService.getTasks({ ...req.query, stuId: req.user.name });
         if (!result.tasks || result.tasks.length === 0) {
-            return res.success(result, '没有查询到相关任务', 'NO_TASK');
+            return res.success(result, 200 , '没有查询到相关任务', 'NO_TASK');
         }
-        return res.success(result, '查询成功', 'SUCCESS');
+        return res.success(result, 200 ,'查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -50,7 +50,7 @@ exports.createTask = async (req, res, next) => {
             throw new AppError('您没有权限新增任务', 403, 'NO_PERMISSION');
         }
         const result = await taskService.createTask(req.body);
-        return res.success(result, '任务新增成功', 'TASK_CREATED');
+        return res.success(result, 204 ,'任务新增成功', 'TASK_CREATED');
     } catch (error) {
         next(error);
     }
@@ -72,7 +72,7 @@ exports.deleteTask = async (req, res, next) => {
             throw new AppError('您没有权限删除该任务', 403, 'NO_PERMISSION');
         }
         const result = await taskService.deleteTask(req.params);
-        return res.success(result, '任务删除成功', 'TASK_DELETED');
+        return res.success(result, 204 ,'任务删除成功', 'TASK_DELETED');
     } catch (error) {
         next(error);
     }
@@ -101,7 +101,7 @@ exports.updateTask = async (req, res, next) => {
         }
         const params = { taskId: req.params.id, ...req.body };
         const result = await taskService.updateTask(params);
-        return res.success(result, '任务修改成功', 'TASK_UPDATED');
+        return res.success(result, 201 ,'任务修改成功', 'TASK_UPDATED');
     } catch (error) {
         next(error);
     }
