@@ -70,9 +70,9 @@ exports.getAnnouncementDetail = async (announcementId) => {
 
 
 /**
- * @description 新增公告接口（暂未实现权限校验）
+ * @description 新增公告接口
  * @param {Object} req - 请求对象
- * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.user.groups - 用户组别，用于校验修改权限
  * @param {Object} req.body - 公告数据
  * @param {string} req.body.title - 公告标题 (必填)
  * @param {string} [req.body.cover_url] - 公告封面URL (可选)
@@ -123,9 +123,9 @@ exports.createAnnouncement = async (announcementData) => {
 
 
 /**
- * @description 删除公告接口（暂未实现权限校验）
+ * @description 删除公告接口
  * @param {Object} req - 请求对象  
- * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {Object} req.user.groups - 用户组别，用于校验修改权限
  * @param {number} req.params.id - 公告ID
  * @returns {Promise<Object>} 删除结果
  */
@@ -149,9 +149,9 @@ exports.deleteAnnouncement = async (announcementId, stuId) => {
 
 
 /**
- * @description 修改公告接口（暂未实现权限校验）
+ * @description 修改公告接口
  * @param {Object} req - 请求对象
- * @param {number} req.user.position - 用户职位，用于校验修改权限       //暂未实现
+ * @param {number} req.user.groups - 用户组别，用于校验修改权限
  * @param {number} req.params.id - 公告ID
  * @param {Object} req.body - 更新数据
  * @param {string} [req.body.title] - 公告标题（可选）

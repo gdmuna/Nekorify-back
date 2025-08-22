@@ -61,13 +61,18 @@ exports.getReplayDetail = async (replayId) => {
  * @param {Object} replayData - 回放数据
  * @returns {Promise<Object>} 新创建的回放记录
  */
-
 exports.addReplay = async (replayData) => {
     // 创建新的课程回放记录
     const replay = await Replay.create(replayData);
     return replay;
 };
 
+/**
+ * @description 更新课程回放
+ * @param {number} replayId - 回放ID
+ * @param {Object} replayData - 更新数据
+ * @returns {Promise<Object>} 更新后的回放记录
+ */
 exports.updateReplay = async (replayId, replayData) => {
     // 查找课程回放记录
     const replay = await Replay.findByPk(replayId);
