@@ -27,6 +27,11 @@ exports.handleCallBack = async function(code) {
                     last_signin_time: new Date(),
                 });
             }else {
+                //返回用户上一次登录时间
+                const lastSignInTime = await User.findOne({ where: { stu_id: userInfo.name },
+                    attributes: ['last_signin_time']
+                });
+                userInfo.lastSigninTime = lastSignInTime.last_signin_time;
                 // 如果用户已存在，更新最后登录时间
                 await User.update(
                     { last_signin_time: new Date() },

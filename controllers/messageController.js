@@ -23,7 +23,7 @@ exports.getMessages = async (req, res, next) => {
         if (!result.messages || result.messages.length === 0) {
             return res.success(result, '没有查询到相关消息', 'NO_MESSAGE');
         }
-        return res.success(result, '查询成功', 'SUCCESS');
+        return res.success(result, 200 ,'查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -34,7 +34,7 @@ exports.getMessageDetail = async (req, res, next) => {
         const messageId = req.params.id;
         const userInfo = req.user; // 获取当前用户信息
         const result = await messageService.getMessageDetail(messageId, userInfo);
-        return res.success(result, '消息详情查询成功', 'MESSAGE_DETAIL_SUCCESS');
+        return res.success(result, 200 ,'消息详情查询成功', 'MESSAGE_DETAIL_SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -49,8 +49,9 @@ exports.addMessage = async (req, res, next) => {
         const messageData = req.body;
         const userInfo = req.user; // 获取当前用户信息
         const result = await messageService.addMessage(messageData, userInfo);
-        return res.success(result, '消息添加成功', 'MESSAGE_ADDED');
+        return res.success(result, 201,'消息添加成功', 'MESSAGE_ADDED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
 }
+

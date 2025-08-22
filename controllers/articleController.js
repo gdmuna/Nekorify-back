@@ -12,7 +12,7 @@ exports.getAllArticles = async (req, res, next) => {
         if (!result.articles || result.articles.length === 0) {
             return res.success(result, '没有查询到相关文章', 'ARTICLE_NOT_FOUND');
         }
-        return res.success(result, '查询成功', 'SUCCESS');
+        return res.success(result, 200 ,'查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -26,7 +26,7 @@ exports.getArticleDetail = async (req, res, next) => {
         if (!result) {
             return res.success(result, '文章不存在', 'ARTICLE_NOT_FOUND');
         }
-        return res.success(result, '查询成功', 'SUCCESS');
+        return res.success(result, 200 ,'查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -38,7 +38,7 @@ exports.addArticle = async (req, res, next) => {
         const { title, textUrl, coverUrl } = req.body;
         const userInfo = req.user;
         const result = await articleService.addArticle(title, textUrl, userInfo, coverUrl);
-        return res.success(result, '文章添加成功', 'ARTICLE_ADDED');
+        return res.success(result, 201 ,'文章添加成功', 'ARTICLE_ADDED');
     } catch (error) {
         next(error);
     }
@@ -53,7 +53,7 @@ exports.updateArticle = async (req, res, next) => {
         const department = req.user.groups[1]; 
         const body = req.body;
         const result = await articleService.updateArticle(articleId, stuId, department, body);
-        return res.success(result, '文章修改成功', 'ARTICLE_UPDATED');
+        return res.success(result, 201 ,'文章修改成功', 'ARTICLE_UPDATED');
     } catch (error) {
         next(error);
     }
@@ -65,7 +65,7 @@ exports.deleteArticle = async (req, res, next) => {
         const articleId = req.params.id;
         const stuId = req.user.name; 
         const result = await articleService.deleteArticle(articleId, stuId);
-        return res.success(result, '文章删除成功', 'ARTICLE_DELETED');
+        return res.success(result, 204 ,'文章删除成功', 'ARTICLE_DELETED');
     } catch (error) {
         next(error);
     }

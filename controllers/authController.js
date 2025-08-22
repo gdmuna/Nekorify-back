@@ -36,7 +36,7 @@ exports.handelCallback = async (req, res, next) => {
         }
         console.log('登录回调参数:', { code, state });
         const result = await authService.handleCallback(code, state);
-        return res.success(result, '登录成功', 'LOGIN_SUCCESS');
+        return res.success(result, 200 ,'登录成功', 'LOGIN_SUCCESS');
     } catch (error) {
         next(error);
     }
@@ -55,7 +55,7 @@ exports.refreshToken = async (req, res, next) => {
             return next(new AppError('缺少刷新令牌', 400, 'MISSING_REFRESH_TOKEN'));
         }
         const result = await authService.refreshToken(refreshToken);
-        return res.success(result, '刷新令牌成功', 'REFRESH_SUCCESS');
+        return res.success(result, 200 ,'刷新令牌成功', 'REFRESH_SUCCESS');
     } catch (error) {
         next(error);
     }
@@ -76,7 +76,7 @@ exports.getUserInfo = async (req, res, next) => {
             return next(new AppError('未授权', 401, 'UNAUTHORIZED'));
         }
         const userInfo = await authService.getUserInfo(accessToken);
-        return res.success(userInfo, '获取用户信息成功', 'USER_INFO_SUCCESS');
+        return res.success(userInfo, 200 ,'获取用户信息成功', 'USER_INFO_SUCCESS');
     } catch (error) {
         next(error);
     }

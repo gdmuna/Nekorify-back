@@ -62,6 +62,9 @@ exports.getReplayDetail = async (replayId) => {
  * @returns {Promise<Object>} 新创建的回放记录
  */
 exports.addReplay = async (replayData) => {
+    if (!replayData.title || !replayData.video_url || !replayData.cover_url || !replayData.department) {
+        throw new Error('缺少必要的回放数据');
+    }
     // 创建新的课程回放记录
     const replay = await Replay.create(replayData);
     return replay;
@@ -80,6 +83,11 @@ exports.updateReplay = async (replayId, replayData) => {
         return null; // 回放不存在
     }
     
+    // 检查必要字段
+    if (!replayData.title && !replayData.video_url && !replayData.cover_url && !replayData.department) {
+        throw new Error('缺少必要的回放数据');
+    }
+
     // 更新课程回放记录
     await replay.update(replayData);
     return replay;
