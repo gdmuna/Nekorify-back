@@ -65,9 +65,9 @@ exports.getAnnouncementDetail = async (req, res, next) => {
 exports.createAnnouncement = async (req, res, next) => {
     try {
         // 权限校验
-        const hasPermission = req.userInfo.groups.some(g => {
+        const hasPermission = req.user.groups.some(g => {
             const meta = groupMeta[g];
-            return meta && (meta.level === 0 || meta.level === 1);
+            return meta && meta.level <= 1;
         });
         if (!hasPermission) {
             throw new AppError('您没有权限新增公告', 403, 'NO_PERMISSION');
@@ -90,9 +90,12 @@ exports.createAnnouncement = async (req, res, next) => {
  */
 exports.deleteAnnouncement = async (req, res, next) => {
     try {
-        console.log(req.user);
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
+        const hasPermission = req.user.groups.some(g => {
+            const meta = groupMeta[g];
+            return meta && meta.level <= 1;
+        });
+        if (!hasPermission) {
             throw new AppError('您没有权限删除该公告', 403, 'NO_PERMISSION');
         }
         const announcementId = req.params.id;
@@ -120,7 +123,11 @@ exports.deleteAnnouncement = async (req, res, next) => {
 exports.updateAnnouncement = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidenc')) {
+        const hasPermission = req.user.groups.some(g => {
+            const meta = groupMeta[g];
+            return meta && meta.level <= 1;
+        });
+        if (!hasPermission) {
             throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
         }
         const announcementId = req.params.id;

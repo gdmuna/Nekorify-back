@@ -7,10 +7,16 @@
  */
 
 const groupMeta = {
-    "gdmu/grade2025": { label: "2025级", level: 4 },
-    "gdmu/grade2024": { label: "2024级", level: 4 },
+    "gdmu/grade2019": { label: "2019级", level: 4 },
+    "gdmu/grade2020": { label: "2020级", level: 4 },
+    "gdmu/grade2021": { label: "2021级", level: 4 },
+    "gdmu/grade2022": { label: "2022级", level: 4 },
     "gdmu/grade2023": { label: "2023级", level: 4 },
+    "gdmu/grade2024": { label: "2024级", level: 4 },
+    "gdmu/grade2025": { label: "2025级", level: 4 },
     "gdmu/gdmu-na": { label: "网络协会", level: 3 },
+    "gdmu/gdmu-acm": { label: "ACM协会", level: 3 },
+    // "gdmu/gdmu-dch": { label: "大创会", level: 3 },
     "gdmu/NA-presidency": {
         label: "网络协会 - 会长团",
         level: 0,
@@ -21,7 +27,11 @@ const groupMeta = {
         level: 1,
         belongs: ["gdmu-na"],
     },
-    "gdmu/NA-BI": { label: "网络协会 - BI部", level: 2, belongs: ["gdmu-na"] },
+    "gdmu/NA-BI": {
+        label: "网络协会 - BI部",
+        level: 2,
+        belongs: ["gdmu-na"]
+    },
     "gdmu/NA-scientific": {
         label: "网络协会 - 科研部",
         level: 2,
@@ -32,7 +42,11 @@ const groupMeta = {
         level: 2,
         belongs: ["gdmu-na"],
     },
-    "gdmu/gdmu-acm": { label: "ACM协会", level: 3 },
+    "gdmu/NA-publicity": {
+        label: "网络协会 - 宣传部",
+        level: 2,
+        belongs: ["gdmu-na"],
+    },
     "gdmu/ACM-presidency": {
         label: "ACM协会 - 会长团",
         level: 0,
@@ -58,7 +72,7 @@ const groupMeta = {
         level: 2,
         belongs: ["gdmu-acm"],
     },
-    "gdmu/NekorifyAdmin": { label: "Nekorify管理员", level: 0 },
+    "gdmu/Nekorify-admin": { label: "Nekorify管理员", level: 0 },
 };
 
 module.exports = groupMeta;
