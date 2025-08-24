@@ -1,5 +1,6 @@
 const announcementService = require('../services/announcementService');
 const AppError = require('../utils/AppError');
+const groupMeta = require('../config/groupMeta');
 
 /**
  * @description 公告控制器
@@ -64,7 +65,11 @@ exports.getAnnouncementDetail = async (req, res, next) => {
 exports.createAnnouncement = async (req, res, next) => {
     try {
         // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
+        const hasPermission = req.userInfo.groups.some(g => {
+            const meta = groupMeta[g];
+            return meta && (meta.level === 0 || meta.level === 1);
+        });
+        if (!hasPermission) {
             throw new AppError('您没有权限新增公告', 403, 'NO_PERMISSION');
         }
         const announcementData = req.body;
