@@ -75,7 +75,6 @@ exports.refreshToken = async function(data) {
 exports.getUserInfo = async function(accessToken) {
     try {
         const userInfo = await casdoor.parseJwtToken(accessToken);
-        console.log('获取到的用户信息:', userInfo);
         return (userInfo);
     } catch (error) {
         let msg = error?.response?.data?.error_description || error.message || '刷新AccessToken失败，请稍后再试';

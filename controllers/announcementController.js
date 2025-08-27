@@ -56,10 +56,10 @@ exports.getAnnouncementDetail = async (req, res, next) => {
  * @param {Object} req.user.groups - 用户组别，用于校验修改权限
  * @param {Object} req.body - 公告数据
  * @param {string} req.body.title - 公告标题 (必填)
- * @param {string} [req.body.cover_url] - 公告封面URL (可选)
+ * @param {string} [req.body.coverUrl] - 公告封面URL (可选)
  * @param {string} [req.body.author] - 公告作者 (必填)
  * @param {string} [req.body.department] - 发布部门 (必填)
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL (必填)
+ * @param {string} [req.body.textUrl] - 公告Markdown文本URL (必填)
  * @returns {Promise<Object>} 新增的公告信息
  */
 exports.createAnnouncement = async (req, res, next) => {
@@ -67,7 +67,7 @@ exports.createAnnouncement = async (req, res, next) => {
         // 权限校验
         const hasPermission = req.user.groups.some(g => {
             const meta = groupMeta[g];
-            return meta && meta.level <= 1;
+            return meta && meta.level <= 3;
         });
         if (!hasPermission) {
             throw new AppError('您没有权限新增公告', 403, 'NO_PERMISSION');
@@ -114,10 +114,10 @@ exports.deleteAnnouncement = async (req, res, next) => {
  * @param {number} req.params.id - 公告ID
  * @param {Object} req.body - 更新数据
  * @param {string} [req.body.title] - 公告标题（可选）
- * @param {string} [req.body.cover_url] - 公告封面URL（可选）
+ * @param {string} [req.body.coverUrl] - 公告封面URL（可选）
  * @param {string} [req.body.author] - 公告作者（可选）
  * @param {string} [req.body.department] - 发布部门（可选）
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL（可选）
+ * @param {string} [req.body.textUrl] - 公告Markdown文本URL（可选）
  * @returns {Promise<Object>} 更新后的公告信息
  */
 exports.updateAnnouncement = async (req, res, next) => {

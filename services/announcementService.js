@@ -75,10 +75,10 @@ exports.getAnnouncementDetail = async (announcementId) => {
  * @param {Object} req.user.groups - 用户组别，用于校验修改权限
  * @param {Object} req.body - 公告数据
  * @param {string} req.body.title - 公告标题 (必填)
- * @param {string} [req.body.cover_url] - 公告封面URL (可选)
+ * @param {string} [req.body.coverUrl] - 公告封面URL (可选)
  * @param {string} [req.body.author] - 公告作者 (必填)
  * @param {string} [req.body.department] - 发布部门 (必填)
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL (必填)
+ * @param {string} [req.body.textUrl] - 公告Markdown文本URL (必填)
  * @returns {Promise<Object>} 新增的公告信息
  */
 exports.createAnnouncement = async (announcementData) => {
@@ -92,14 +92,14 @@ exports.createAnnouncement = async (announcementData) => {
     if (!announcementData.department) {
         throw new AppError('缺少发布部门', 400, 'MISSING_DEPARTMENT');
     }
-    if (!announcementData.text_md_url) {
+    if (!announcementData.textUrl) {
         throw new AppError('缺少公告Markdown文本URL', 400, 'MISSINGD_URL');
     }
-    if (!isValidUrl(announcementData.text_md_url)) {
-        throw new AppError('公告Markdown文本URL无效', 400, 'INVALID_TEXT_MD_URL');
+    if (!isValidUrl(announcementData.textUrl)) {
+        throw new AppError('公告Markdown文本URL无效', 400, 'INVALID_textUrl');
     }
     // 校验可选字段
-    if (announcementData.cover_url && !isValidUrl(announcementData.cover_url)) {
+    if (announcementData.coverUrl && !isValidUrl(announcementData.coverUrl)) {
         throw new AppError('公告封面URL无效', 400, 'INVALID_COVER_URL');
     }
     // 检验同一作者是否发布过相同标题的公告
@@ -155,10 +155,10 @@ exports.deleteAnnouncement = async (announcementId, stuId) => {
  * @param {number} req.params.id - 公告ID
  * @param {Object} req.body - 更新数据
  * @param {string} [req.body.title] - 公告标题（可选）
- * @param {string} [req.body.cover_url] - 公告封面URL（可选）
+ * @param {string} [req.body.coverUrl] - 公告封面URL（可选）
  * @param {string} [req.body.author] - 公告作者（可选）
  * @param {string} [req.body.department] - 发布部门（可选）
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL（可选）
+ * @param {string} [req.body.textUrl] - 公告Markdown文本URL（可选）
  * @returns {Promise<Object>} 更新后的公告信息
  */
 exports.updateAnnouncement = async (announcementId, updateData) => {
@@ -177,10 +177,10 @@ exports.updateAnnouncement = async (announcementId, updateData) => {
     }
     // 更新公告
     if (updateData.title !== undefined) announcement.title = updateData.title;
-    if (updateData.cover_url !== undefined) announcement.cover_url = updateData.cover_url;
+    if (updateData.coverUrl !== undefined) announcement.cover_url = updateData.coverUrl;
     if (updateData.author !== undefined) announcement.author = updateData.author;
     if (updateData.department !== undefined) announcement.department = updateData.department;
-    if (updateData.text_md_url !== undefined) announcement.text_md_url = updateData.text_md_url;
+    if (updateData.textUrl !== undefined) announcement.text_md_url = updateData.textUrl;
 
     await announcement.save();
 
