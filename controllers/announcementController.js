@@ -48,8 +48,6 @@ exports.getAnnouncementDetail = async (req, res, next) => {
 };
 
 
-
-
 /**
  * @description 新增公告接口
  * @param {Object} req - 请求对象
@@ -64,43 +62,9 @@ exports.getAnnouncementDetail = async (req, res, next) => {
  */
 exports.createAnnouncement = async (req, res, next) => {
     try {
-        // 权限校验
-        const hasPermission = req.user.groups.some(g => {
-            const meta = groupMeta[g];
-            return meta && meta.level <= 3;
-        });
-        if (!hasPermission) {
-            throw new AppError('您没有权限新增公告', 403, 'NO_PERMISSION');
-        }
         const announcementData = req.body;
         const result = await announcementService.createAnnouncement(announcementData);
         return res.success(result, 201,'公告新增成功', 'ANNOUNCEMENT_CREATED');
-    } catch (error) {
-        next(error); // 交给错误处理中间件
-    }
-};
-
-
-/**
- * @description 删除公告接口
- * @param {Object} req - 请求对象  
- * @param {Object} req.user.groups - 用户组别，用于校验修改权限
- * @param {number} req.params.id - 公告ID
- * @returns {Promise<Object>} 删除结果
- */
-exports.deleteAnnouncement = async (req, res, next) => {
-    try {
-        // 权限校验
-        const hasPermission = req.user.groups.some(g => {
-            const meta = groupMeta[g];
-            return meta && meta.level <= 1;
-        });
-        if (!hasPermission) {
-            throw new AppError('您没有权限删除该公告', 403, 'NO_PERMISSION');
-        }
-        const announcementId = req.params.id;
-        const result = await announcementService.deleteAnnouncement(announcementId);
-        return res.success(result, 204,'公告删除成功', 'ANNOUNCEMENT_DELETED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -122,18 +86,32 @@ exports.deleteAnnouncement = async (req, res, next) => {
  */
 exports.updateAnnouncement = async (req, res, next) => {
     try {
-        // 权限校验
-        const hasPermission = req.user.groups.some(g => {
-            const meta = groupMeta[g];
-            return meta && meta.level <= 1;
-        });
-        if (!hasPermission) {
-            throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
-        }
         const announcementId = req.params.id;
         const updateData = req.body;
-        const result = await announcementService.updateAnnouncement(announcementId, updateData);
-        return res.success(result, 201 ,'公告更新成功', 'ANNOUNCEMENT_UPDATED');
+        const displayName = req.user.displayName;
+        const userGroups = req.user.groups;
+        const result = await announcementService.updateAnnouncement(announcementId, updateData, displayName, userGroups);
+        return res.success(result, 200 ,'公告更新成功', 'ANNOUNCEMENT_UPDATED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+
+/**
+ * @description 删除公告接口
+ * @param {Object} req - 请求对象  
+ * @param {Object} req.user.groups - 用户组别，用于校验修改权限
+ * @param {number} req.params.id - 公告ID
+ * @returns {Promise<Object>} 删除结果
+ */
+exports.deleteAnnouncement = async (req, res, next) => {
+    try {
+        const announcementId = req.params.id;
+        const author = req.user.displayName;
+        const userGroups = req.user.groups;
+        const result = await announcementService.deleteAnnouncement(announcementId, author, userGroups);
+        return res.success(result, 200,'公告删除成功', 'ANNOUNCEMENT_DELETED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }

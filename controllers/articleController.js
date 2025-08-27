@@ -69,7 +69,8 @@ exports.deleteArticle = async (req, res, next) => {
     try {
         const articleId = req.params.id;
         const stuId = req.user.name;
-        const result = await articleService.deleteArticle(articleId, stuId);
+        const userGroups = req.user.groups;
+        const result = await articleService.deleteArticle(articleId, stuId, userGroups);
         return res.success(result, 200, "文章删除成功", "ARTICLE_DELETED");
     } catch (error) {
         next(error);

@@ -1,9 +1,10 @@
-const { noTrueLogging } = require('sequelize/lib/utils/deprecations');
-const { Announcement } = require('../models');
-const AppError = require('../utils/AppError');
-const { isValidUrl } = require('../utils/validUrlUtils');
+const { noTrueLogging } = require("sequelize/lib/utils/deprecations");
+const { Announcement, User } = require("../models");
+const AppError = require("../utils/AppError");
+const { isValidUrl } = require("../utils/validUrlUtils");
+const groupMeta = require("../config/groupMeta");
 
-/**    
+/**
  * @description 公告服务
  * @module services/announcementService
  */
@@ -24,7 +25,7 @@ exports.getAnnouncements = async (query) => {
 
     // 设置文章查询条件
     const condition = {
-        order: [['createdAt', 'DESC']],
+        order: [["createdAt", "DESC"]],
         offset,
         limit: pageSize,
     };
@@ -38,15 +39,14 @@ exports.getAnnouncements = async (query) => {
 
     return {
         pagination: {
-            currentPage,             // 当前页
-            pageSize,                // 每页记录数
-            totalRecords: count,     // 总记录数
-            totalPages,              // 总页数   
+            currentPage, // 当前页
+            pageSize, // 每页记录数
+            totalRecords: count, // 总记录数
+            totalPages, // 总页数
         },
-        announcements
+        announcements,
     };
 };
-
 
 /**
  * @description 获取公告详情接口
@@ -59,15 +59,13 @@ exports.getAnnouncementDetail = async (announcementId) => {
     // 查询公告
     const announcement = await Announcement.findByPk(announcementId);
     if (!announcement) {
-        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
+        throw new AppError("公告不存在", 404, "ANNOUNCEMENT_NOT_FOUND");
     }
     // 浏览量加一
-    announcement.views += 1 ;
+    announcement.views += 1;
     await announcement.save();
     return announcement;
 };
-
-
 
 /**
  * @description 新增公告接口
@@ -84,67 +82,51 @@ exports.getAnnouncementDetail = async (announcementId) => {
 exports.createAnnouncement = async (announcementData) => {
     // 校验必填字段
     if (!announcementData.title) {
-        throw new AppError('缺少公告标题', 400, 'MISSING_TITLE');
+        throw new AppError("缺少公告标题", 400, "MISSING_TITLE");
     }
     if (!announcementData.author) {
-        throw new AppError('缺少公告作者', 400, 'MISSING_AUTHOR');
+        throw new AppError("缺少公告作者", 400, "MISSING_AUTHOR");
     }
     if (!announcementData.department) {
-        throw new AppError('缺少发布部门', 400, 'MISSING_DEPARTMENT');
+        throw new AppError("缺少发布部门", 400, "MISSING_DEPARTMENT");
     }
     if (!announcementData.textUrl) {
-        throw new AppError('缺少公告Markdown文本URL', 400, 'MISSINGD_URL');
+        throw new AppError("缺少公告Markdown文本URL", 400, "MISSINGD_URL");
     }
     if (!isValidUrl(announcementData.textUrl)) {
-        throw new AppError('公告Markdown文本URL无效', 400, 'INVALID_textUrl');
+        throw new AppError("公告Markdown文本URL无效", 400, "INVALID_textUrl");
     }
     // 校验可选字段
     if (announcementData.coverUrl && !isValidUrl(announcementData.coverUrl)) {
-        throw new AppError('公告封面URL无效', 400, 'INVALID_COVER_URL');
+        throw new AppError("公告封面URL无效", 400, "INVALID_COVER_URL");
     }
     // 检验同一作者是否发布过相同标题的公告
     const existingAnnouncement = await Announcement.findOne({
         where: {
             title: announcementData.title,
             author: announcementData.author,
-        }
+        },
     });
     if (existingAnnouncement) {
-        throw new AppError('同一作者已发布过相同标题的公告', 400, 'DUPLICATE_ANNOUNCEMENT');
+        throw new AppError(
+            "同一作者已发布过相同标题的公告",
+            400,
+            "DUPLICATE_ANNOUNCEMENT"
+        );
     }
 
     // 创建公告
-    const announcement = await Announcement.create(announcementData);
+    const announcement = await Announcement.create({
+        title: announcementData.title,
+        author: announcementData.author,
+        department: announcementData.department,
+        text_md_url: announcementData.textUrl,
+        cover_url: announcementData.coverUrl || null,
+    });
     if (!announcement) {
-        throw new AppError('新增公告失败', 500, 'ANNOUNCEMENT_CREATION_FAILED');
+        throw new AppError("新增公告失败", 500, "ANNOUNCEMENT_CREATION_FAILED");
     }
     return announcement;
-};
-
-
-/**
- * @description 删除公告接口
- * @param {Object} req - 请求对象  
- * @param {Object} req.user.groups - 用户组别，用于校验修改权限
- * @param {number} req.params.id - 公告ID
- * @returns {Promise<Object>} 删除结果
- */
-exports.deleteAnnouncement = async (announcementId, stuId) => {
-    // 校验ID
-    if (!announcementId || isNaN(Number(announcementId))) {
-        throw new AppError('公告ID无效', 400, 'INVALID_ANNOUNCEMENT_ID');
-    }
-
-    // 查找公告
-    const announcement = await Announcement.findByPk(announcementId);
-    if (!announcement) {
-        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
-    }
-
-    // 软删除公告
-    await announcement.destroy();
-    
-    return announcement; // 返回被删除的公告信息
 };
 
 
@@ -161,28 +143,86 @@ exports.deleteAnnouncement = async (announcementId, stuId) => {
  * @param {string} [req.body.textUrl] - 公告Markdown文本URL（可选）
  * @returns {Promise<Object>} 更新后的公告信息
  */
-exports.updateAnnouncement = async (announcementId, updateData) => {
+exports.updateAnnouncement = async (announcementId, updateData, displayName, userGroups) => {
     // 检验公告ID是否有效
     if (!announcementId || isNaN(Number(announcementId))) {
-        throw new AppError('公告ID无效', 400, 'INVALID_ANNOUNCEMENT_ID');
+        throw new AppError("公告ID无效", 400, "INVALID_ANNOUNCEMENT_ID");
     }
+
     // 检验传入的更新数据是否有效
-    if (!updateData || typeof updateData !== 'object') {
-        throw new AppError('更新数据无效', 400, 'INVALID_UPDATE_DATA');
+    if (!updateData || typeof updateData !== "object") {
+        throw new AppError("更新数据无效", 400, "INVALID_UPDATE_DATA");
     }
+
     // 检验公告是否存在
     const announcement = await Announcement.findByPk(announcementId);
     if (!announcement) {
-        throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
+        throw new AppError("公告不存在", 404, "ANNOUNCEMENT_NOT_FOUND");
     }
+
+    // 权限校验：非管理员用户只能修改自己的公告
+    const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+    if (userLevel !== 1) { // 用户只能修改自己的公告，1级权限管理员无限制
+        const anouncement = await Announcement.findOne({
+            where: {
+                id: announcementId,
+            },
+        });
+        if (anouncement.author !== displayName) {
+            throw new AppError('修改者与公告发布者不匹配', 403, 'ANNOUNCEMENT_AUTHOR_MISMATCH');
+        }
+    }
+
     // 更新公告
     if (updateData.title !== undefined) announcement.title = updateData.title;
-    if (updateData.coverUrl !== undefined) announcement.cover_url = updateData.coverUrl;
+    if (updateData.coverUrl !== undefined)
+        announcement.cover_url = updateData.coverUrl;
     if (updateData.author !== undefined) announcement.author = updateData.author;
-    if (updateData.department !== undefined) announcement.department = updateData.department;
-    if (updateData.textUrl !== undefined) announcement.text_md_url = updateData.textUrl;
+    if (updateData.department !== undefined)
+        announcement.department = updateData.department;
+    if (updateData.textUrl !== undefined)
+        announcement.text_md_url = updateData.textUrl;
 
     await announcement.save();
 
     return announcement;
+};
+
+
+/**
+ * @description 删除公告接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user.groups - 用户组别，用于校验修改权限
+ * @param {number} req.params.id - 公告ID
+ * @returns {Promise<Object>} 删除结果
+ */
+exports.deleteAnnouncement = async (announcementId, displayName, userGroups) => {
+    // 校验ID
+    if (!announcementId || isNaN(Number(announcementId))) {
+        throw new AppError("公告ID无效", 400, "INVALID_ANNOUNCEMENT_ID");
+    }
+
+    // 查找公告
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) {
+        throw new AppError("公告不存在", 404, "ANNOUNCEMENT_NOT_FOUND");
+    }
+    
+    // 权限校验：非管理员用户只能删除自己的公告
+    const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+    if (userLevel !== 1) { // 用户只能删除自己的公告，1级权限管理员无限制
+        const anouncement = await Announcement.findOne({
+            where: {
+                id: announcementId,
+            },
+        });
+        if (anouncement.author !== displayName) {
+            throw new AppError('删除者与公告发布者不匹配', 403, 'ANNOUNCEMENT_AUTHOR_MISMATCH');
+        }
+    }
+
+    // 软删除公告
+    await announcement.destroy();
+
+    return announcement; // 返回被删除的公告信息
 };

@@ -109,8 +109,9 @@ exports.updateArticle = async (articleId, stuId, body, userGroups) => {
         throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
     }
 
+    // 权限校验：用户只能更新自己的文章，1级权限管理员无限制
     const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
-    if (userLevel !== 1) { // 普通用户只能更新自己的文章，1级权限管理员无限制
+    if (userLevel !== 1) {
         const userInfo = await User.findByPk(article.author_id);
         if (userInfo.stu_id !== stuId) {
             throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
@@ -136,7 +137,7 @@ exports.updateArticle = async (articleId, stuId, body, userGroups) => {
 };
 
 // 删除文章接口(软删除)
-exports.deleteArticle = async (articleId, stuId) => {
+exports.deleteArticle = async (articleId, stuId, userGroups) => {
     // 校验ID
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
@@ -148,7 +149,9 @@ exports.deleteArticle = async (articleId, stuId) => {
         throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
     }
 
-    if (userLevel !== 1) { // 普通用户只能删除自己的文章，1级权限管理员无限制
+    // 权限校验：用户只能删除自己的文章
+    const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+    if (userLevel !== 1) {
         const userInfo = await User.findByPk(article.author_id);
         if (userInfo.stu_id !== stuId) {
             throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
