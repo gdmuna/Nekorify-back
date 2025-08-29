@@ -10,6 +10,7 @@ const groupMeta = {
     "gdmu/Nekorify-admin": {
         label: "Nekorify管理员",
         level: 1,
+        belongs: ["gdmu-na"],
     },
     "gdmu/NA-presidency": {
         label: "网络协会 - 会长团",
