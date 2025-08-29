@@ -21,9 +21,9 @@ exports.getTasks = async (req, res, next) => {
         }
         const result = await taskService.getTasks({ ...req.query, stuId: req.user.name });
         if (!result.tasks || result.tasks.length === 0) {
-            return res.success(result, 200 , '没有查询到相关任务', 'NO_TASK');
+            return res.success(result, 200, '没有查询到相关任务', 'NO_TASK');
         }
-        return res.success(result, 200 ,'查询成功', 'SUCCESS');
+        return res.success(result, 200, '查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -45,34 +45,8 @@ exports.getTasks = async (req, res, next) => {
  */
 exports.createTask = async (req, res, next) => {
     try {
-        // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
-            throw new AppError('您没有权限新增任务', 403, 'NO_PERMISSION');
-        }
         const result = await taskService.createTask(req.body);
-        return res.success(result, 204 ,'任务新增成功', 'TASK_CREATED');
-    } catch (error) {
-        next(error);
-    }
-};
-
-
-/**
- * @description 删除任务接口
- * @param {Object} req - 请求对象
- * @param {Object} req.params - 路由参数
- * @param {Object} req.params.id - 任务ID
- * @param {Object} req.user.groups - 用户组别，用于校验修改权限
- * @returns {Promise<Object>} 删除结果
- */
-exports.deleteTask = async (req, res, next) => {
-    try {
-        // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
-            throw new AppError('您没有权限删除该任务', 403, 'NO_PERMISSION');
-        }
-        const result = await taskService.deleteTask(req.params);
-        return res.success(result, 204 ,'任务删除成功', 'TASK_DELETED');
+        return res.success(result, 201, '任务新增成功', 'TASK_CREATED');
     } catch (error) {
         next(error);
     }
@@ -95,14 +69,29 @@ exports.deleteTask = async (req, res, next) => {
  */
 exports.updateTask = async (req, res, next) => {
     try {
-        // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
-            throw new AppError('您没有权限修改该任务', 403, 'NO_PERMISSION');
-        }
         const params = { taskId: req.params.id, ...req.body };
         const result = await taskService.updateTask(params);
-        return res.success(result, 201 ,'任务修改成功', 'TASK_UPDATED');
+        return res.success(result, 200, '任务修改成功', 'TASK_UPDATED');
     } catch (error) {
         next(error);
     }
 };
+
+
+/**
+ * @description 删除任务接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.params - 路由参数
+ * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.user.groups - 用户组别，用于校验修改权限
+ * @returns {Promise<Object>} 删除结果
+ */
+exports.deleteTask = async (req, res, next) => {
+    try {
+        const result = await taskService.deleteTask(req.params);
+        return res.success(result, 200, '任务删除成功', 'TASK_DELETED');
+    } catch (error) {
+        next(error);
+    }
+};
+

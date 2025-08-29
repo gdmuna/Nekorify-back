@@ -61,16 +61,26 @@ exports.getReplayDetail = async (replayId) => {
  * @param {Object} replayData - 回放数据
  * @returns {Promise<Object>} 新创建的回放记录
  */
-
 exports.addReplay = async (replayData) => {
-    if (!replayData.title || !replayData.video_url || !replayData.cover_url || !replayData.department) {
+    if (!replayData.title || !replayData.videoUrl || !replayData.coverUrl || !replayData.department) {
         throw new Error('缺少必要的回放数据');
     }
     // 创建新的课程回放记录
-    const replay = await Replay.create(replayData);
+    const replay = await Replay.create({
+        title: replayData.title,
+        video_url: replayData.videoUrl,
+        cover_url: replayData.coverUrl,
+        department: replayData.department,
+    });
     return replay;
 };
 
+/**
+ * @description 更新课程回放
+ * @param {number} replayId - 回放ID
+ * @param {Object} replayData - 更新数据
+ * @returns {Promise<Object>} 更新后的回放记录
+ */
 exports.updateReplay = async (replayId, replayData) => {
     // 查找课程回放记录
     const replay = await Replay.findByPk(replayId);
@@ -79,12 +89,24 @@ exports.updateReplay = async (replayId, replayData) => {
     }
     
     // 检查必要字段
-    if (!replayData.title && !replayData.video_url && !replayData.cover_url && !replayData.department) {
+    if (!replayData || Object.keys(replayData).length === 0) {
         throw new Error('缺少必要的回放数据');
     }
 
     // 更新课程回放记录
-    await replay.update(replayData);
+    if (replayData.title !== undefined) {
+        replay.title = replayData.title;
+    }
+    if (replayData.videoUrl !== undefined) {
+        replay.video_url = replayData.videoUrl;
+    }
+    if (replayData.coverUrl !== undefined) {
+        replay.cover_url = replayData.coverUrl;
+    }
+    if (replayData.department !== undefined) {
+        replay.department = replayData.department;
+    }
+    await replay.save();
     return replay;
 };
 

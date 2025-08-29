@@ -1,26 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const articleController = require('../controllers/articleController.js');
+const permissionGuard = require('../middlewares/permissionGuard');
+const articleController = require('../controllers/articleController');
 
-
-/**
- * @description 文章相关路由
- * @module routes/article
- */
-
-// 获取所有文章列表
+// 查询接口（无需权限）
 router.get('/', articleController.getAllArticles);
-
-// 获取指定ID的文章详情
 router.get('/:id', articleController.getArticleDetail);
 
-// 更新指定ID的文章
-router.put('/:id', articleController.updateArticle);
+// 新增文章（需要权限）
+router.post('/', permissionGuard({ type: 'article', action: 'add', minLevel: 3 }), articleController.addArticle);
 
-// 删除指定ID的文章
-router.delete('/:id', articleController.deleteArticle);
+// 更新文章（需要权限）
+router.put('/:id', permissionGuard({ type: 'article', action: 'update', minLevel: 3 }), articleController.updateArticle);
 
-// 新增文章
-router.post('/', articleController.addArticle);
+// 删除文章（需要权限）
+router.delete('/:id', permissionGuard({ type: 'article', action: 'delete', minLevel: 3 }), articleController.deleteArticle);
 
 module.exports = router;

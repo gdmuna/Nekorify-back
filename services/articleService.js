@@ -1,5 +1,7 @@
 const { Article, User } = require('../models');
 const AppError = require('../utils/AppError');
+const groupMeta = require('../config/groupMeta');
+
 /**
  * @description 文章服务
  * @module services/articleService
@@ -61,7 +63,6 @@ exports.getArticleDetail = async (articleId) => {
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
     }
-
     // 查找文章记录
     const article = await Article.findByPk(articleId);
     if (!article) {
@@ -73,9 +74,9 @@ exports.getArticleDetail = async (articleId) => {
 };
 
 // 新增文章接口
-exports.addArticle = async (title, textUrl, userInfo, cover_url, ) => {
-    if (!title || !textUrl || !cover_url) {
-        throw new AppError('缺少属性', 400, 'MISSING_TITLE_OR_TEXT_URL_OR_COVER_URL');
+exports.addArticle = async (title, textUrl, userInfo, coverUrl,) => {
+    if (!title || !textUrl) {
+        throw new AppError('未传入title或textUrl', 400, 'MISSING_TITLE_OR_TEXT_URL');
     }
 
     // 查找用户
@@ -84,50 +85,59 @@ exports.addArticle = async (title, textUrl, userInfo, cover_url, ) => {
         throw new AppError('学生ID不存在', 404, 'STUID_NOT_FOUND');
     }
 
-
     // 创建文章
     const article = await Article.create({
         title,
         text_md_url: textUrl,
-        author_id: userId.id, 
+        author_id: userId.id,
         author: userInfo.displayName,
-        cover_url: cover_url, 
-        department: userInfo.groups[1], 
+        cover_url: coverUrl,
+        department: userInfo.groups[1],
     });
 
     return article;
 }
 
 // 更新文章接口
-exports.updateArticle = async (articleId, stuId, body) => {
+exports.updateArticle = async (articleId, stuId, body, userGroups) => {
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
     }
 
-    const article = await Article.findByPk(articleId);  
+    const article = await Article.findByPk(articleId);
     if (!article) {
         throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
     }
 
-    const userInfo = await User.findByPk(article.author_id);
-    if (userInfo.stu_id !== stuId) {
-        throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
+    // 权限校验：用户只能更新自己的文章，1级权限管理员无限制
+    const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+    if (userLevel !== 1) {
+        const userInfo = await User.findByPk(article.author_id);
+        if (userInfo.stu_id !== stuId) {
+            throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
+        }
     }
 
     if (!body) {
         throw new AppError('缺少更新内容', 400, 'MISSING_UPDATE_CONTENT');
     }
 
-    article.text_md_url = body.updateUrl;
-    article.title = body.title;
-    article.cover_url = body.coverUrl;
+    if (body.textUrl !== undefined) {
+        article.text_md_url = body.textUrl;
+    }
+    if (body.title !== undefined) {
+        article.title = body.title;
+    }
+    if (body.coverUrl !== undefined) {
+        article.cover_url = body.coverUrl;
+    }
     await article.save();
 
     return article;
 };
 
 // 删除文章接口(软删除)
-exports.deleteArticle = async (articleId,stuId) => {
+exports.deleteArticle = async (articleId, stuId, userGroups) => {
     // 校验ID
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
@@ -139,13 +149,16 @@ exports.deleteArticle = async (articleId,stuId) => {
         throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
     }
 
-    const userInfo = await User.findByPk(article.author_id);
-    console.log('用户信息:', userInfo);
-    if(userInfo.stu_id !== stuId) {
-        throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
+    // 权限校验：用户只能删除自己的文章
+    const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+    if (userLevel !== 1) {
+        const userInfo = await User.findByPk(article.author_id);
+        if (userInfo.stu_id !== stuId) {
+            throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
+        }
     }
-    
+
     // 软删除文章
     await article.destroy();
-    return(article); // 返回被删除的文章信息
+    return (article); // 返回被删除的文章信息
 };

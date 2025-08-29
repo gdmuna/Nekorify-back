@@ -1,5 +1,6 @@
 const announcementService = require('../services/announcementService');
 const AppError = require('../utils/AppError');
+const groupMeta = require('../config/groupMeta');
 
 /**
  * @description 公告控制器
@@ -47,29 +48,50 @@ exports.getAnnouncementDetail = async (req, res, next) => {
 };
 
 
-
-
 /**
  * @description 新增公告接口
  * @param {Object} req - 请求对象
  * @param {Object} req.user.groups - 用户组别，用于校验修改权限
  * @param {Object} req.body - 公告数据
  * @param {string} req.body.title - 公告标题 (必填)
- * @param {string} [req.body.cover_url] - 公告封面URL (可选)
+ * @param {string} [req.body.coverUrl] - 公告封面URL (可选)
  * @param {string} [req.body.author] - 公告作者 (必填)
  * @param {string} [req.body.department] - 发布部门 (必填)
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL (必填)
+ * @param {string} [req.body.textUrl] - 公告Markdown文本URL (必填)
  * @returns {Promise<Object>} 新增的公告信息
  */
 exports.createAnnouncement = async (req, res, next) => {
     try {
-        // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
-            throw new AppError('您没有权限新增公告', 403, 'NO_PERMISSION');
-        }
         const announcementData = req.body;
         const result = await announcementService.createAnnouncement(announcementData);
         return res.success(result, 201,'公告新增成功', 'ANNOUNCEMENT_CREATED');
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+
+/**
+ * @description 修改公告接口
+ * @param {Object} req - 请求对象
+ * @param {number} req.user.groups - 用户组别，用于校验修改权限
+ * @param {number} req.params.id - 公告ID
+ * @param {Object} req.body - 更新数据
+ * @param {string} [req.body.title] - 公告标题（可选）
+ * @param {string} [req.body.coverUrl] - 公告封面URL（可选）
+ * @param {string} [req.body.author] - 公告作者（可选）
+ * @param {string} [req.body.department] - 发布部门（可选）
+ * @param {string} [req.body.textUrl] - 公告Markdown文本URL（可选）
+ * @returns {Promise<Object>} 更新后的公告信息
+ */
+exports.updateAnnouncement = async (req, res, next) => {
+    try {
+        const announcementId = req.params.id;
+        const updateData = req.body;
+        const displayName = req.user.displayName;
+        const userGroups = req.user.groups;
+        const result = await announcementService.updateAnnouncement(announcementId, updateData, displayName, userGroups);
+        return res.success(result, 200 ,'公告更新成功', 'ANNOUNCEMENT_UPDATED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
@@ -85,43 +107,11 @@ exports.createAnnouncement = async (req, res, next) => {
  */
 exports.deleteAnnouncement = async (req, res, next) => {
     try {
-        console.log(req.user);
-        // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidency')) {
-            throw new AppError('您没有权限删除该公告', 403, 'NO_PERMISSION');
-        }
         const announcementId = req.params.id;
-        const result = await announcementService.deleteAnnouncement(announcementId);
-        return res.success(result, 204,'公告删除成功', 'ANNOUNCEMENT_DELETED');
-    } catch (error) {
-        next(error); // 交给错误处理中间件
-    }
-};
-
-
-/**
- * @description 修改公告接口
- * @param {Object} req - 请求对象
- * @param {number} req.user.groups - 用户组别，用于校验修改权限
- * @param {number} req.params.id - 公告ID
- * @param {Object} req.body - 更新数据
- * @param {string} [req.body.title] - 公告标题（可选）
- * @param {string} [req.body.cover_url] - 公告封面URL（可选）
- * @param {string} [req.body.author] - 公告作者（可选）
- * @param {string} [req.body.department] - 发布部门（可选）
- * @param {string} [req.body.text_md_url] - 公告Markdown文本URL（可选）
- * @returns {Promise<Object>} 更新后的公告信息
- */
-exports.updateAnnouncement = async (req, res, next) => {
-    try {
-        // 权限校验
-        if (!req.user.groups.some(g => g === 'gdmu/ACM-presidency' || g === 'gdmu/NA-presidenc')) {
-            throw new AppError('您没有权限修改该公告', 403, 'NO_PERMISSION');
-        }
-        const announcementId = req.params.id;
-        const updateData = req.body;
-        const result = await announcementService.updateAnnouncement(announcementId, updateData);
-        return res.success(result, 201 ,'公告更新成功', 'ANNOUNCEMENT_UPDATED');
+        const author = req.user.displayName;
+        const userGroups = req.user.groups;
+        const result = await announcementService.deleteAnnouncement(announcementId, author, userGroups);
+        return res.success(result, 200,'公告删除成功', 'ANNOUNCEMENT_DELETED');
     } catch (error) {
         next(error); // 交给错误处理中间件
     }
