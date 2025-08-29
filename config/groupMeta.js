@@ -68,43 +68,43 @@ const groupMeta = {
     },
     "gdmu/gdmu-na": {
         label: "网络协会",
-        level: 3
+        level: 4
     },
     "gdmu/gdmu-acm": {
         label: "ACM协会",
-        level: 3
+        level: 4
     },
     // "gdmu/gdmu-dch": { 
     // label: "大创会",
-    //  level: 3 
+    //  level: 4 
     // },
     "gdmu/grade2019": {
         label: "2019级",
-        level: 4
+        level: 5
     },
     "gdmu/grade2020": {
         label: "2020级",
-        level: 4
+        level: 5
     },
     "gdmu/grade2021": {
         label: "2021级",
-        level: 4
+        level: 5
     },
     "gdmu/grade2022": {
         label: "2022级",
-        level: 4
+        level: 5
     },
     "gdmu/grade2023": {
         label: "2023级",
-        level: 4
+        level: 5
     },
     "gdmu/grade2024": {
         label: "2024级",
-        level: 4
+        level: 5
     },
     "gdmu/grade2025": {
         label: "2025级",
-        level: 4
+        level: 5
     },
 };
 
