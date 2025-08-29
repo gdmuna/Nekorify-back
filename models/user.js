@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'author_id',
         sourceKey: 'id'
       });
+      // 关联到公告表
+      this.hasMany(models.Announcement, {
+        foreignKey: 'author_id',
+        sourceKey: 'id'
+      });
       // 关联到任务用户表
       this.belongsToMany(models.Task, {
         through: 'TasksUsers',

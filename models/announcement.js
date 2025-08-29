@@ -10,7 +10,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // 关联到用户表
+      Announcement.belongsTo(models.User, {
+        foreignKey: 'author_id',
+        sourceKey: 'id'
+      });
     }
   }
   Announcement.init({
@@ -21,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
     cover_url: {
       allowNull: true,
       type: DataTypes.STRING
+    },
+    author_id: {
+      allowNull: false,
+      type: DataTypes.INTEGER
     },
     author: {
       allowNull: false,
@@ -53,6 +61,9 @@ module.exports = (sequelize, DataTypes) => {
       {
         unique: true,
         fields: ['title', 'author']
+      },
+      {
+        fields: ['author_id']
       }
     ]
   });

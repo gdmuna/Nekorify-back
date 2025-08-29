@@ -6,6 +6,7 @@ const whiteList = [
   { method: 'POST', path: /^\/api\/auth/ },
   { method: 'GET', path: /^\/api\/announcement\/$/ },
   { method: 'GET', path: /^\/api\/announcement(\/\d+)?$/ },
+  { method: 'GET', path: /^\/api\/announcement\/user$/ },
   { method: 'GET', path: /^\/api\/article\/$/ },
   { method: 'GET', path: /^\/api\/article(\/\d+)?$/ },
   { method: 'GET', path: /^\/api\/replay\/$/ },

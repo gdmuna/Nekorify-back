@@ -67,10 +67,43 @@ exports.getAnnouncementDetail = async (announcementId) => {
     return announcement;
 };
 
+
+/**
+ * @description 获取用户发布的所有公告接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.query - 查询参数
+ * @param {Array<string>} ids - 用户ID数组
+ * @returns {Promise<Array>} 用户发布的所有公告列表
+ */
+exports.getUserAnnouncements = async (ids) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('用户ID数组不能为空', 400, 'MISSING_USER_ID');
+    }
+    // 查询所有 author_id 在 ids 数组中的公告
+    const announcements = await Announcement.findAll({
+        where: {
+            author_id: ids
+        },
+        order: [["createdAt", "DESC"]]
+    });
+    // 按 author_id 分组，key 为 author_id:x，value 为公告数组
+    const grouped = {};
+    for (const ann of announcements) {
+        const key = `author_id:${ann.author_id}`;
+        if (!grouped[key]) {
+            grouped[key] = [];
+        }
+        grouped[key].push(ann);
+    }
+    return grouped;
+};
+
+
+
 /**
  * @description 新增公告接口
  * @param {Object} req - 请求对象
- * @param {Object} req.user.groups - 用户组别，用于校验修改权限
+ * @param {Object} req.user - 用户信息
  * @param {Object} req.body - 公告数据
  * @param {string} req.body.title - 公告标题 (必填)
  * @param {string} [req.body.coverUrl] - 公告封面URL (可选)
@@ -79,13 +112,10 @@ exports.getAnnouncementDetail = async (announcementId) => {
  * @param {string} [req.body.textUrl] - 公告Markdown文本URL (必填)
  * @returns {Promise<Object>} 新增的公告信息
  */
-exports.createAnnouncement = async (announcementData) => {
+exports.createAnnouncement = async (announcementData, userInfo) => {
     // 校验必填字段
     if (!announcementData.title) {
         throw new AppError("缺少公告标题", 400, "MISSING_TITLE");
-    }
-    if (!announcementData.author) {
-        throw new AppError("缺少公告作者", 400, "MISSING_AUTHOR");
     }
     if (!announcementData.department) {
         throw new AppError("缺少发布部门", 400, "MISSING_DEPARTMENT");
@@ -100,11 +130,16 @@ exports.createAnnouncement = async (announcementData) => {
     if (announcementData.coverUrl && !isValidUrl(announcementData.coverUrl)) {
         throw new AppError("公告封面URL无效", 400, "INVALID_COVER_URL");
     }
+    // 查找用户
+    const userId = await User.findOne({ where: { stu_id: userInfo.name } });
+    if (!userInfo) {
+        throw new AppError('用户的学生ID不存在', 404, 'STUID_NOT_FOUND');
+    }
     // 检验同一作者是否发布过相同标题的公告
     const existingAnnouncement = await Announcement.findOne({
         where: {
             title: announcementData.title,
-            author: announcementData.author,
+            author: userInfo.name,
         },
     });
     if (existingAnnouncement) {
@@ -118,7 +153,8 @@ exports.createAnnouncement = async (announcementData) => {
     // 创建公告
     const announcement = await Announcement.create({
         title: announcementData.title,
-        author: announcementData.author,
+        author_id: userId.id,
+        author: userInfo.displayName,
         department: announcementData.department,
         text_md_url: announcementData.textUrl,
         cover_url: announcementData.coverUrl || null,

@@ -49,13 +49,36 @@ exports.getAnnouncementDetail = async (req, res, next) => {
 
 
 /**
+ * @description 获取用户发布的所有公告接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.query - 查询参数
+ * @param {Array<string>} ids - 用户ID数组
+ * @returns {Promise<Array>} 用户发布的所有公告列表
+ */
+exports.getUserAnnouncements = async (req, res, next) => {
+    const ids = Array.isArray(req.query.ids) ? req.query.ids : [];
+    if (ids.length === 0) {
+        return next(new AppError('请提供用户id', 400, 'MISSING_USER_ID'));
+    }
+    try {
+        const result = await announcementService.getUserAnnouncements(ids);
+        if (!result || result.length === 0) {
+            return res.success(result, '没有查询到相关公告', 'ANNOUNCEMENT_NOT_FOUND');
+        }
+        return res.success(result, 200, '查询成功', 'SUCCESS');
+    } catch (err) {
+        next(err); // 交给错误处理中间件
+    }
+};
+
+
+/**
  * @description 新增公告接口
  * @param {Object} req - 请求对象
- * @param {Object} req.user.groups - 用户组别，用于校验修改权限
+ * @param {Object} req.user - 用户信息
  * @param {Object} req.body - 公告数据
  * @param {string} req.body.title - 公告标题 (必填)
  * @param {string} [req.body.coverUrl] - 公告封面URL (可选)
- * @param {string} [req.body.author] - 公告作者 (必填)
  * @param {string} [req.body.department] - 发布部门 (必填)
  * @param {string} [req.body.textUrl] - 公告Markdown文本URL (必填)
  * @returns {Promise<Object>} 新增的公告信息
@@ -63,7 +86,8 @@ exports.getAnnouncementDetail = async (req, res, next) => {
 exports.createAnnouncement = async (req, res, next) => {
     try {
         const announcementData = req.body;
-        const result = await announcementService.createAnnouncement(announcementData);
+        const userInfo = req.user;
+        const result = await announcementService.createAnnouncement(announcementData, userInfo);
         return res.success(result, 201,'公告新增成功', 'ANNOUNCEMENT_CREATED');
     } catch (error) {
         next(error); // 交给错误处理中间件

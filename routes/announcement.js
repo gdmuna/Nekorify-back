@@ -10,6 +10,8 @@ const permissionGuard = require('../middlewares/permissionGuard.js');
 
 // 获取公告列表
 router.get('/', announcementController.getAnnouncements);
+// 获取用户发布的所有公告
+router.get('/user', announcementController.getUserAnnouncements);
 // 获取公告详情
 router.get('/:id', announcementController.getAnnouncementDetail);
 // 新增公告
