@@ -1,91 +1,59 @@
 #!/usr/bin/env node
 
 /**
- * Module dependencies.
+ * Nekorify 后端服务入口文件
  */
-require('dotenv').config();
-var app = require('../app');
-var debug = require('debug')('nekorify-back:server');
-var http = require('http');
+
+// ==================== 模块依赖 ====================
+
+// 环境变量配置
+require("dotenv").config();
+
+// Express 及第三方中间件
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const cors = require("cors");
+
+// 自定义中间件
+const errorHandlerMiddleware = require("../middlewares/errorHandle");
+const successResponse = require("../middlewares/successResponse");
+const apiProtected = require("../middlewares/apiProtected");
+
+// 路由
+const router = require("../routes/index");
+
+// ==================== 应用配置 ====================
 
 /**
- * Get port from environment and store in Express.
+ * 创建 Express 应用
  */
+const app = express();
 
-var port = normalizePort(process.env.PORT || '4000');
-app.set('port', port);
+// 基础中间件配置
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+); // 允许跨域访问，限制方法
+app.use(logger("dev")); // 请求日志
+app.use(express.json()); // 解析 JSON 请求体
+app.use(express.urlencoded({ extended: true })); // 解析 URL 编码请求体
+app.use(cookieParser()); // 解析 Cookie
+app.use(successResponse); // 成功响应处理
 
-/**
- * Create HTTP server.
- */
+// API 路由和保护
+app.use(apiProtected); // API 鉴权中间件
+app.use("/api", router); // API 路由挂载
 
-var server = http.createServer(app);
+// 错误处理
+app.use(errorHandlerMiddleware); // 全局错误处理中间件
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+// ==================== 服务器启动 ====================
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-  console.log('后端服务地址' + addr.port);
-}
+// 启动服务器
+const server = app.listen(process.env.PORT || 33001, process.env.HOST || '127.0.0.1', () => {
+    console.log('Server running at http://%s:%s', process.env.HOST, process.env.PORT);
+    console.log('Environment=%s', process.env.NODE_ENV);
+});
