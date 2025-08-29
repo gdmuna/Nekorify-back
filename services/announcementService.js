@@ -77,7 +77,7 @@ exports.getAnnouncementDetail = async (announcementId) => {
  */
 exports.getUserAnnouncements = async (ids) => {
     if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('用户ID数组不能为空', 400, 'MISSING_USER_ID');
+        throw new AppError('请提供用户id', 400, 'MISSING_USER_ID');
     }
     // 查询所有 author_id 在 ids 数组中的公告
     const announcements = await Announcement.findAll({
