@@ -37,8 +37,8 @@ exports.getAnnouncements = async (query) => {
     const totalPages = Math.ceil(count / pageSize);
     const announcements = rows;
 
-    if(announcements.length === 0) {
-        throw new AppError('没有查询到相关公告', 404, 'ANNOUNCEMENT_NOT_FOUND');
+    if (announcements.length === 0) {
+        throw new AppError("没有查询到相关公告", 404, "ANNOUNCEMENT_NOT_FOUND");
     }
 
     return {
@@ -71,40 +71,53 @@ exports.getAnnouncementDetail = async (announcementId) => {
     return announcement;
 };
 
-
 /**
  * @description 获取用户发布的所有公告接口
  * @param {Object} req - 请求对象
  * @param {Object} req.query - 查询参数
  * @param {Array<string>} ids - 用户ID数组
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Array>} 用户发布的所有公告列表
  */
-exports.getUserAnnouncements = async (ids) => {
+exports.getUserAnnouncements = async (query) => {
+    const ids = Array.isArray(query.ids) ? query.ids : [];
+    const currentPage = Math.abs(Number(query.currentPage)) || 1;
+    const pageSize = Math.abs(Number(query.pageSize)) || 10;
+    const offset = (currentPage - 1) * pageSize;
+
     if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('请提供用户id', 400, 'MISSING_USER_ID');
+        throw new AppError("请提供用户id", 400, "MISSING_USER_ID");
     }
-    // 查询所有 author_id 在 ids 数组中的公告
-    const announcements = await Announcement.findAll({
-        where: {
-            author_id: ids
-        },
-        order: [["createdAt", "DESC"]]
+
+    const { count, rows } = await Announcement.findAndCountAll({
+        where: { author_id: ids },
+        order: [["createdAt", "DESC"]],
+        offset,
+        limit: pageSize
     });
-    // 按 author_id 分组，key 为 author_id:x，value 为公告数组
+
     const grouped = {};
-    for (const ann of announcements) {
+    for (const ann of rows) {
         const key = `author_id:${ann.author_id}`;
         if (!grouped[key]) {
             grouped[key] = [];
         }
         grouped[key].push(ann);
     }
-    if (Object.keys(grouped).length === 0) {
-        return null;
-    }
-    return grouped;
-};
 
+    const totalPages = Math.ceil(count / pageSize);
+
+    return {
+        pagination: {
+            currentPage,
+            pageSize,
+            totalRecords: count,
+            totalPages
+        },
+        grouped
+    };
+};
 
 
 /**
@@ -113,28 +126,41 @@ exports.getUserAnnouncements = async (ids) => {
  * @param {Object} req.user - 用户信息
  * @returns {Promise<Array>} 用户发布的所有公告列表
  */
-exports.getCurrentUserAnnouncements = async (user) => {
+exports.getCurrentUserAnnouncements = async (user, query) => {
+    // 获取分页参数
+    const currentPage = Math.abs(Number(query.currentPage)) || 1;
+    const pageSize = Math.abs(Number(query.pageSize)) || 10;
+    const offset = (currentPage - 1) * pageSize;
+
     if (!user || !user.name) {
-        throw new AppError('用户不存在', 404, 'USER_NOT_FOUND');
+        throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
     }
     // 先查用户表，获取用户主键 id
     const dbUser = await User.findOne({ where: { stu_id: user.name } });
     if (!dbUser) {
-        throw new AppError('用户不存在', 404, 'USER_NOT_FOUND');
+        throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
     }
-    // 用用户 id 查公告表
-    const announcements = await Announcement.findAll({
+    // 用用户 id 查公告表，分页查询
+    const { count, rows } = await Announcement.findAndCountAll({
         where: {
-            author_id: dbUser.id
+            author_id: dbUser.id,
         },
-        order: [["createdAt", "DESC"]]
+        order: [["createdAt", "DESC"]],
+        offset,
+        limit: pageSize,
     });
-    if (announcements.length === 0) {
-        return null;
-    }
-    return announcements;
-};
+    const totalPages = Math.ceil(count / pageSize);
 
+    return {
+        pagination: {
+            currentPage,
+            pageSize,
+            totalRecords: count,
+            totalPages,
+        },
+        announcements: rows,
+    };
+};
 
 /**
  * @description 新增公告接口
@@ -169,7 +195,7 @@ exports.createAnnouncement = async (announcementData, userInfo) => {
     // 查找用户
     const userId = await User.findOne({ where: { stu_id: userInfo.name } });
     if (!userInfo) {
-        throw new AppError('用户的学生ID不存在', 404, 'STUID_NOT_FOUND');
+        throw new AppError("用户的学生ID不存在", 404, "STUID_NOT_FOUND");
     }
     // 检验同一作者是否发布过相同标题的公告
     const existingAnnouncement = await Announcement.findOne({
@@ -201,7 +227,6 @@ exports.createAnnouncement = async (announcementData, userInfo) => {
     return announcement;
 };
 
-
 /**
  * @description 修改公告接口
  * @param {Object} req - 请求对象
@@ -215,7 +240,12 @@ exports.createAnnouncement = async (announcementData, userInfo) => {
  * @param {string} [req.body.textUrl] - 公告Markdown文本URL（可选）
  * @returns {Promise<Object>} 更新后的公告信息
  */
-exports.updateAnnouncement = async (announcementId, updateData, displayName, userGroups) => {
+exports.updateAnnouncement = async (
+    announcementId,
+    updateData,
+    displayName,
+    userGroups
+) => {
     // 检验公告ID是否有效
     if (!announcementId || isNaN(Number(announcementId))) {
         throw new AppError("公告ID无效", 400, "INVALID_ANNOUNCEMENT_ID");
@@ -233,15 +263,22 @@ exports.updateAnnouncement = async (announcementId, updateData, displayName, use
     }
 
     // 权限校验：非管理员用户只能修改自己的公告
-    const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
-    if (userLevel !== 1) { // 用户只能修改自己的公告，1级权限管理员无限制
+    const userLevel = Math.min(
+        ...userGroups.map((g) => groupMeta[g]?.level ?? 99)
+    );
+    if (userLevel !== 1) {
+        // 用户只能修改自己的公告，1级权限管理员无限制
         const anouncement = await Announcement.findOne({
             where: {
                 id: announcementId,
             },
         });
         if (anouncement.author !== displayName) {
-            throw new AppError('修改者与公告发布者不匹配', 403, 'ANNOUNCEMENT_AUTHOR_MISMATCH');
+            throw new AppError(
+                "修改者与公告发布者不匹配",
+                403,
+                "ANNOUNCEMENT_AUTHOR_MISMATCH"
+            );
         }
     }
 
@@ -260,7 +297,6 @@ exports.updateAnnouncement = async (announcementId, updateData, displayName, use
     return announcement;
 };
 
-
 /**
  * @description 删除公告接口
  * @param {Object} req - 请求对象
@@ -268,7 +304,11 @@ exports.updateAnnouncement = async (announcementId, updateData, displayName, use
  * @param {number} req.params.id - 公告ID
  * @returns {Promise<Object>} 删除结果
  */
-exports.deleteAnnouncement = async (announcementId, displayName, userGroups) => {
+exports.deleteAnnouncement = async (
+    announcementId,
+    displayName,
+    userGroups
+) => {
     // 校验ID
     if (!announcementId || isNaN(Number(announcementId))) {
         throw new AppError("公告ID无效", 400, "INVALID_ANNOUNCEMENT_ID");
@@ -279,17 +319,24 @@ exports.deleteAnnouncement = async (announcementId, displayName, userGroups) => 
     if (!announcement) {
         throw new AppError("公告不存在", 404, "ANNOUNCEMENT_NOT_FOUND");
     }
-    
+
     // 权限校验：非管理员用户只能删除自己的公告
-    const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
-    if (userLevel !== 1) { // 用户只能删除自己的公告，1级权限管理员无限制
+    const userLevel = Math.min(
+        ...userGroups.map((g) => groupMeta[g]?.level ?? 99)
+    );
+    if (userLevel !== 1) {
+        // 用户只能删除自己的公告，1级权限管理员无限制
         const anouncement = await Announcement.findOne({
             where: {
                 id: announcementId,
             },
         });
         if (anouncement.author !== displayName) {
-            throw new AppError('删除者与公告发布者不匹配', 403, 'ANNOUNCEMENT_AUTHOR_MISMATCH');
+            throw new AppError(
+                "删除者与公告发布者不匹配",
+                403,
+                "ANNOUNCEMENT_AUTHOR_MISMATCH"
+            );
         }
     }
 

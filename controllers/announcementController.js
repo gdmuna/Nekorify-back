@@ -53,16 +53,15 @@ exports.getAnnouncementDetail = async (req, res, next) => {
  * @param {Object} req - 请求对象
  * @param {Object} req.query - 查询参数
  * @param {Array<string>} ids - 用户ID数组
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Array>} 用户发布的所有公告列表
  */
 exports.getUserAnnouncements = async (req, res, next) => {
-    const ids = Array.isArray(req.query.ids) ? req.query.ids : [];
-    if (ids.length === 0) {
-        return next(new AppError('请提供用户id', 400, 'MISSING_USER_ID'));
-    }
     try {
-        const result = await announcementService.getUserAnnouncements(ids);
-        if (!result || result.length === 0 || (typeof result === 'object' && Object.keys(result).length === 0)) {
+        const result = await announcementService.getUserAnnouncements(req.query);
+        // 判断 grouped 是否为空对象
+        if (!result || !result.grouped || Object.keys(result.grouped).length === 0) {
             return res.success(result, 404, '没有查询到相关公告', 'ANNOUNCEMENT_NOT_FOUND');
         }
         return res.success(result, 200, '查询成功', 'SUCCESS');
@@ -76,11 +75,13 @@ exports.getUserAnnouncements = async (req, res, next) => {
  * @description 获取当前用户发布的所有公告接口
  * @param {Object} req - 请求对象
  * @param {Object} req.user - 用户信息
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Array>} 用户发布的所有公告列表
  */
 exports.getCurrentUserAnnouncements = async (req, res, next) => {
     try {
-        const result = await announcementService.getCurrentUserAnnouncements(req.user);
+        const result = await announcementService.getCurrentUserAnnouncements(req.user, req.query);
         if (!result || result.length === 0) {
             return res.success(result, 200, '没有查询到相关公告', 'ANNOUNCEMENT_NOT_FOUND');
         }
