@@ -21,7 +21,7 @@ exports.getMessages = async (req, res, next) => {
         const userInfo = req.user; // 获取当前用户信息
         const result = await messageService.getMessagesList(userInfo, req.query);
         if (!result.messages || result.messages.length === 0) {
-            return res.success(result, '没有查询到相关消息', 'NO_MESSAGE');
+            return res.success(result, 404,'没有查询到相关消息', 'NO_MESSAGE');
         }
         return res.success(result, 200 ,'查询成功', 'SUCCESS');
     } catch (error) {

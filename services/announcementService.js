@@ -37,6 +37,10 @@ exports.getAnnouncements = async (query) => {
     const totalPages = Math.ceil(count / pageSize);
     const announcements = rows;
 
+    if(announcements.length === 0) {
+        throw new AppError('没有查询到相关公告', 404, 'ANNOUNCEMENT_NOT_FOUND');
+    }
+
     return {
         pagination: {
             currentPage, // 当前页
@@ -95,9 +99,41 @@ exports.getUserAnnouncements = async (ids) => {
         }
         grouped[key].push(ann);
     }
+    if (Object.keys(grouped).length === 0) {
+        return null;
+    }
     return grouped;
 };
 
+
+
+/**
+ * @description 获取当前用户发布的所有公告接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user - 用户信息
+ * @returns {Promise<Array>} 用户发布的所有公告列表
+ */
+exports.getCurrentUserAnnouncements = async (user) => {
+    if (!user || !user.name) {
+        throw new AppError('用户不存在', 404, 'USER_NOT_FOUND');
+    }
+    // 先查用户表，获取用户主键 id
+    const dbUser = await User.findOne({ where: { stu_id: user.name } });
+    if (!dbUser) {
+        throw new AppError('用户不存在', 404, 'USER_NOT_FOUND');
+    }
+    // 用用户 id 查公告表
+    const announcements = await Announcement.findAll({
+        where: {
+            author_id: dbUser.id
+        },
+        order: [["createdAt", "DESC"]]
+    });
+    if (announcements.length === 0) {
+        return null;
+    }
+    return announcements;
+};
 
 
 /**

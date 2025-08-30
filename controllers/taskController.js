@@ -21,7 +21,7 @@ exports.getTasks = async (req, res, next) => {
         }
         const result = await taskService.getTasks({ ...req.query, stuId: req.user.name });
         if (!result.tasks || result.tasks.length === 0) {
-            return res.success(result, 200, '没有查询到相关任务', 'NO_TASK');
+            return res.success(result, 404, '没有查询到相关任务', 'NO_TASK');
         }
         return res.success(result, 200, '查询成功', 'SUCCESS');
     } catch (error) {
