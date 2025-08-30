@@ -8,16 +8,9 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const db = {};
 
-let sequelize;
-if (env === 'development') {
-  sequelize = new Sequelize(process.env.DB_DEV_URI);
-} else if (env === 'test') {
-  sequelize = new Sequelize(process.env.DB_TEST_URI);
-} else if (env === 'production') {
-  sequelize = new Sequelize(process.env.DB_PROD_URI);
-} else {
-  throw new Error('Unknown NODE_ENV: ' + env);
-}
+const sequelize = new Sequelize(process.env.DB_URI, {
+  dialect: 'mariadb',
+});
 
 fs
   .readdirSync(__dirname)

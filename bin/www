@@ -7,7 +7,9 @@
 // ==================== 模块依赖 ====================
 
 // 环境变量配置
-require("dotenv").config();
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV || "development"}`,
+});
 
 // Express 及第三方中间件
 const express = require("express");
@@ -53,7 +55,15 @@ app.use(errorHandlerMiddleware); // 全局错误处理中间件
 // ==================== 服务器启动 ====================
 
 // 启动服务器
-const server = app.listen(process.env.PORT || 33001, process.env.HOST || '127.0.0.1', () => {
-    console.log('Server running at http://%s:%s', process.env.HOST, process.env.PORT);
-    console.log('Environment=%s', process.env.NODE_ENV);
-});
+const server = app.listen(
+  process.env.PORT || 33001,
+  process.env.HOST || "127.0.0.1",
+  () => {
+    console.log(
+      "Server running at http://%s:%s",
+      process.env.HOST,
+      process.env.PORT
+    );
+    console.log("Environment=%s", process.env.NODE_ENV);
+  }
+);
