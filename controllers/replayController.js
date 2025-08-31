@@ -41,7 +41,7 @@ exports.getCurrentUserReplays = async (req, res, next) => {
     try {
         const result = await replayService.getCurrentUserReplays(req.user, req.query);
         if (!result || result.length === 0) {
-            return res.success(result, 200, '没有查询到相关回放', 'REPLAY_NOT_FOUND');
+            return res.success(result, 404, '没有查询到相关回放', 'REPLAY_NOT_FOUND');
         }
         return res.success(result, 200, '查询成功', 'SUCCESS');
     } catch (err) {
