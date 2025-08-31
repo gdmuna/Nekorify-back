@@ -5,6 +5,11 @@ const articleController = require('../controllers/articleController');
 
 // 查询接口（无需权限）
 router.get('/', articleController.getAllArticles);
+
+// 获取当前用户发布的所有文章
+router.get('/self', articleController.getCurrentUserArticles);
+
+// 查询详情接口（无需权限）
 router.get('/:id', articleController.getArticleDetail);
 
 // 新增文章（需要权限）

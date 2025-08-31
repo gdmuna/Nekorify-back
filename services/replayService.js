@@ -45,6 +45,52 @@ exports.getReplays = async (query) => {
     };
 };
 
+
+/**
+ * @description 获取当前用户发布的所有回放接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user - 用户信息
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Array>} 用户发布的所有回放列表
+ */
+exports.getCurrentUserReplays = async (user, query) => {
+    // 获取分页参数
+    const currentPage = Math.abs(Number(query.currentPage)) || 1;
+    const pageSize = Math.abs(Number(query.pageSize)) || 10;
+    const offset = (currentPage - 1) * pageSize;
+
+    if (!user || !user.name) {
+        throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
+    }
+    // 先查用户表，获取用户主键 id
+    const dbUser = await User.findOne({ where: { stu_id: user.name } });
+    if (!dbUser) {
+        throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
+    }
+    // 用用户 id 查公告表，分页查询
+    const { count, rows } = await Replay.findAndCountAll({
+        where: {
+            author_id: dbUser.id,
+        },
+        order: [["createdAt", "DESC"]],
+        offset,
+        limit: pageSize,
+    });
+    const totalPages = Math.ceil(count / pageSize);
+
+    return {
+        pagination: {
+            currentPage,
+            pageSize,
+            totalRecords: count,
+            totalPages,
+        },
+        replays: rows,
+    };
+};
+
+
 exports.getReplayDetail = async (replayId) => {
     // 查找课程回放记录
     const replay = await Replay.findByPk(replayId);
@@ -55,6 +101,7 @@ exports.getReplayDetail = async (replayId) => {
     await replay.increment('views');
     return replay;
 };
+
 
 /**
  * @description 添加课程回放
@@ -74,6 +121,7 @@ exports.addReplay = async (replayData) => {
     });
     return replay;
 };
+
 
 /**
  * @description 更新课程回放

@@ -28,6 +28,28 @@ exports.getReplays = async (req, res, next) => {
     }
 };
 
+
+/**
+ * @description 获取当前用户发布的所有回放接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user - 用户信息
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Array>} 用户发布的所有回放列表
+ */
+exports.getCurrentUserReplays = async (req, res, next) => {
+    try {
+        const result = await replayService.getCurrentUserReplays(req.user, req.query);
+        if (!result || result.length === 0) {
+            return res.success(result, 200, '没有查询到相关回放', 'REPLAY_NOT_FOUND');
+        }
+        return res.success(result, 200, '查询成功', 'SUCCESS');
+    } catch (err) {
+        next(err); // 交给错误处理中间件
+    }
+};
+
+
 exports.getReplayDetail = async (req, res, next) => {
     try {
         const replayId = req.params.id;

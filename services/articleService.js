@@ -73,6 +73,56 @@ exports.getArticleDetail = async (articleId) => {
     return article;
 };
 
+
+/**
+ * @description 获取当前用户发布的所有文章接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user - 用户信息
+ * @param {Object} query - 查询参数
+ * @param {number} [query.currentPage] - 当前页码（可选）
+ * @param {number} [query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Object>} 用户发布的所有文章列表及分页信息
+ */
+exports.getCurrentUserArticles = async (userInfo, query = {}) => {
+    // 获取分页参数
+    const currentPage = Math.abs(Number(query.currentPage)) || 1;
+    const pageSize = Math.abs(Number(query.pageSize)) || 10;
+    const offset = (currentPage - 1) * pageSize;
+
+    if (!userInfo || !userInfo.name) {
+        throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
+    }
+    
+    // 先查用户表，获取用户主键 id
+    const dbUser = await User.findOne({ where: { stu_id: userInfo.name } });
+    if (!dbUser) {
+        throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
+    }
+    
+    // 用用户 id 查文章表，分页查询
+    const { count, rows } = await Article.findAndCountAll({
+        where: {
+            author_id: dbUser.id,
+        },
+        order: [["createdAt", "DESC"]],
+        offset,
+        limit: pageSize,
+    });
+    
+    const totalPages = Math.ceil(count / pageSize);
+
+    return {
+        pagination: {
+            currentPage,
+            pageSize,
+            totalRecords: count,
+            totalPages,
+        },
+        articles: rows,
+    };
+};
+
+
 // 新增文章接口
 exports.addArticle = async (title, textUrl, userInfo, coverUrl,) => {
     if (!title || !textUrl) {

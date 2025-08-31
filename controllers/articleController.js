@@ -32,6 +32,29 @@ exports.getArticleDetail = async (req, res, next) => {
     }
 };
 
+
+/**
+ * @description 获取当前用户发布的所有文章接口
+ * @param {Object} req - 请求对象
+ * @param {Object} req.user - 用户信息
+ * @param {number} [req.query.currentPage] - 当前页码（可选）
+ * @param {number} [req.query.pageSize] - 每页数量（可选）
+ * @returns {Promise<Array>} 用户发布的所有文章列表
+ */
+exports.getCurrentUserArticles = async (req, res, next) => {
+    try {
+        const userInfo = req.user;
+        const result = await articleService.getCurrentUserArticles(userInfo);
+        if (!result.articles || result.articles.length === 0) {
+            return res.success(result, 404, "没有查询到相关文章", "ARTICLE_NOT_FOUND");
+        }
+        return res.success(result, 200, "查询成功", "SUCCESS");
+    } catch (error) {
+        next(error); // 交给错误处理中间件
+    }
+};
+
+
 // 新增文章接口
 exports.addArticle = async (req, res, next) => {
     try {
