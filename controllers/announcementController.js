@@ -7,6 +7,7 @@ const groupMeta = require('../config/groupMeta');
  * @module controllers/announcementController
  */
 
+
 /**
  * @description 获取公告列表接口
  * @param {Object} req - 请求对象
