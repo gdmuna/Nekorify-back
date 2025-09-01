@@ -4,13 +4,34 @@ const casdoorUtils = require('../utils/casdoorUtils');
  * 获取 Casdoor 登录授权链接
  * @returns {string} 登录授权 URL
  */
-exports.getLoginUrl = () => {
-    return process.env.CASDOOR_ENDPOINT + '/login/oauth/authorize' +
+/**
+ * 获取 Casdoor 登录授权链接（根据请求头动态设置 redirect_uri）
+ * @param {object} req - Express 请求对象
+ * @returns {string} 登录授权 URL
+ */
+exports.getLoginUrl = (req) => {
+    // 从请求头取 Origin 或 Referer
+    const origin =
+        req.headers.origin ||
+        (req.headers.referer ? new URL(req.headers.referer).origin : null);
+
+    // 默认使用环境变量中的重定向地址，如果没有则使用正式环境的前端地址
+    let redirectUri = process.env.CASDOOR_REDIRECT_URL || "https://im.gdmuna.com/loginCallback";
+
+    // 如果能识别到 origin，就替换成它的 loginCallback 路径
+    if (origin) {
+        redirectUri = `${origin}/loginCallback`;
+    }
+
+    return (
+        process.env.CASDOOR_ENDPOINT +
+        "/login/oauth/authorize" +
         `?client_id=${process.env.CASDOOR_CLIENT_ID}` +
         `&response_type=code` +
-        `&redirect_uri=${process.env.CASDOOR_REDIRECT_URL}` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
         `&scope=read` +
-        `&state=${process.env.CASDOOR_STATE}`;
+        `&state=${process.env.CASDOOR_STATE}`
+    );
 };
 
 /**
