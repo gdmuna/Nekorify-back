@@ -88,7 +88,7 @@ exports.updateTask = async (req, res, next) => {
  */
 exports.deleteTask = async (req, res, next) => {
     try {
-        const result = await taskService.deleteTask(req.params);
+        const result = await taskService.deleteTask(req.body);
         return res.success(result, 200, '任务删除成功', 'TASK_DELETED');
     } catch (error) {
         next(error);

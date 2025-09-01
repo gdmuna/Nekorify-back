@@ -187,28 +187,47 @@ exports.updateArticle = async (articleId, stuId, body, userGroups) => {
 };
 
 // 删除文章接口(软删除)
-exports.deleteArticle = async (articleId, stuId, userGroups) => {
-    // 校验ID
-    if (!articleId || isNaN(Number(articleId))) {
+exports.deleteArticle = async (articleIds, stuId, userGroups) => {
+    // 兼容单个ID和ID数组
+    const idArray = Array.isArray(articleIds) ? articleIds : [articleIds];
+    
+    if (idArray.length === 0) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
     }
-
-    // 查找文章
-    const article = await Article.findByPk(articleId);
-    if (!article) {
-        throw new AppError('文章不存在', 404, 'ARTICLE_NOT_FOUND');
+    
+    // 查找所有文章
+    const articles = await Article.findAll({
+        where: { id: idArray }
+    });
+    
+    if (articles.length === 0) {
+        throw new AppError('未找到任何文章', 404, 'ARTICLE_NOT_FOUND');
     }
-
-    // 权限校验：用户只能删除自己的文章
+    
+    // 权限校验
     const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+    
     if (userLevel !== 1) {
-        const userInfo = await User.findByPk(article.author_id);
-        if (userInfo.stu_id !== stuId) {
-            throw new AppError('文章作者与学生ID不匹配', 403, 'AUTHOR_MISMATCH');
+        // 获取用户信息
+        const userIds = [...new Set(articles.map(article => article.author_id))];
+        const users = await User.findAll({ where: { id: userIds } });
+        
+        // 检查是否有权限删除所有文章
+        const unauthorizedArticles = articles.filter(article => {
+            const author = users.find(u => u.id === article.author_id);
+            return author && author.stu_id !== stuId;
+        });
+        
+        if (unauthorizedArticles.length > 0) {
+            throw new AppError('您不能删除他人发布的文章', 403, 'AUTHOR_MISMATCH');
         }
     }
-
-    // 软删除文章
-    await article.destroy();
-    return (article); // 返回被删除的文章信息
+    
+    // 批量软删除文章
+    await Promise.all(articles.map(article => article.destroy()));
+    
+    return {
+        deletedCount: articles.length,
+        deletedIds: articles.map(a => a.id),
+    };
 };

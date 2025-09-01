@@ -163,14 +163,28 @@ exports.updateReplay = async (replayId, replayData) => {
  * @param {number} replayId - 回放ID
  * @returns {Promise<boolean>} 是否删除成功
  */
-exports.deleteReplay = async (replayId) => {
-    // 查找课程回放记录
-    const replay = await Replay.findByPk(replayId);
-    if (!replay) {
-        return false; // 回放不存在
+exports.deleteReplay = async (replayIds) => {
+    // 兼容单个ID和ID数组
+    const idArray = Array.isArray(replayIds) ? replayIds : [replayIds];
+    
+    if (idArray.length === 0) {
+        throw new AppError('回放ID无效', 400, 'INVALID_REPLAY_ID');
     }
     
-    // 删除课程回放记录
-    await replay.destroy();
-    return true;
+    // 查找所有回放记录
+    const replays = await Replay.findAll({
+        where: { id: idArray }
+    });
+    
+    if (replays.length === 0) {
+        throw new AppError('未找到任何回放', 404, 'REPLAY_NOT_FOUND');
+    }
+    
+    // 批量删除回放
+    await Promise.all(replays.map(replay => replay.destroy()));
+    
+    return {
+        deletedCount: replays.length,
+        deletedIds: replays.map(r => r.id),
+    };
 };

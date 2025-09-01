@@ -23,6 +23,6 @@ router.post('/', permissionGuard({ type: 'replay', action: 'add', minLevel: 3 })
 router.put('/:id', permissionGuard({ type: 'replay', action: 'update', minLevel: 3 }), replayController.updateReplay);
 
 // 删除课程回放
-router.delete('/:id', permissionGuard({ type: 'replay', action: 'delete', minLevel: 3 }), replayController.deleteReplay);
+router.delete('/', permissionGuard({ type: 'replay', action: 'delete', minLevel: 3 }), replayController.deleteReplay);
 
 module.exports = router;

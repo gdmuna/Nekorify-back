@@ -89,7 +89,7 @@ exports.updateReplay = async (req, res, next) => {
 
 exports.deleteReplay = async (req, res, next) => {
     try {
-        const replayId = req.params.id;
+        const replayId = req.body.id;
         const result = await replayService.deleteReplay(replayId);
         if (!result) {
             return res.success(result, 200 ,'回放不存在或删除失败', 'REPLAY_NOT_FOUND');
