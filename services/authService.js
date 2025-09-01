@@ -6,21 +6,22 @@ const casdoorUtils = require('../utils/casdoorUtils');
  */
 /**
  * 获取 Casdoor 登录授权链接（根据请求头动态设置 redirect_uri）
- * @param {object} req - Express 请求对象
+ * @param {object} req - Express 请求对象（可选）
  * @returns {string} 登录授权 URL
  */
 exports.getLoginUrl = (req) => {
-    // 从请求头取 Origin 或 Referer
-    const origin =
-        req.headers.origin ||
-        (req.headers.referer ? new URL(req.headers.referer).origin : null);
+    let redirectUri = process.env.CASDOOR_REDIRECT_URL ;
 
-    // 默认使用环境变量中的重定向地址，如果没有则使用正式环境的前端地址
-    let redirectUri = process.env.CASDOOR_REDIRECT_URL || "https://im.gdmuna.com/loginCallback";
+    // 如果传入了 req 参数且包含 headers，则尝试获取 origin
+    if (req && req.headers) {
+        const origin =
+            req.headers.origin ||
+            (req.headers.referer ? new URL(req.headers.referer).origin : null);
 
-    // 如果能识别到 origin，就替换成它的 loginCallback 路径
-    if (origin) {
-        redirectUri = `${origin}/loginCallback`;
+        // 如果能识别到 origin，就替换成它的 loginCallback 路径
+        if (origin) {
+            redirectUri = `${origin}/loginCallback`;
+        }
     }
 
     return (
