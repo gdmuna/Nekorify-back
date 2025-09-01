@@ -21,11 +21,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID
       },
+      avatar_url: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
       last_signin_time: {
         allowNull: true,
         type: Sequelize.DATE
       },
-      // 用于标记用户是否被冻结
       is_frozen: {
         allowNull: false,
         defaultValue: false,

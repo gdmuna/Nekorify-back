@@ -124,7 +124,7 @@ exports.getCurrentUserArticles = async (userInfo, query = {}) => {
 
 
 // 新增文章接口
-exports.addArticle = async (title, textUrl, userInfo, coverUrl,) => {
+exports.addArticle = async (title, textUrl, userInfo, coverUrl, coverWidth, coverHeight) => {
     if (!title || !textUrl) {
         throw new AppError('未传入title或textUrl', 400, 'MISSING_TITLE_OR_TEXT_URL');
     }
@@ -142,6 +142,8 @@ exports.addArticle = async (title, textUrl, userInfo, coverUrl,) => {
         author_id: userId.id,
         author: userInfo.displayName,
         cover_url: coverUrl,
+        cover_width: coverWidth || null,
+        cover_height: coverHeight || null,
         department: userInfo.groups[1],
     });
 

@@ -58,13 +58,15 @@ exports.getCurrentUserArticles = async (req, res, next) => {
 // 新增文章接口
 exports.addArticle = async (req, res, next) => {
     try {
-        const { title, textUrl, coverUrl } = req.body;
+        const { title, textUrl, coverUrl,coverWidth,coverHeight } = req.body;
         const userInfo = req.user;
         const result = await articleService.addArticle(
             title,
             textUrl,
             userInfo,
-            coverUrl
+            coverUrl,
+            coverHeight,
+            coverWidth
         );
         return res.success(result, 201, "文章添加成功", "ARTICLE_ADDED");
     } catch (error) {

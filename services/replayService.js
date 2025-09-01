@@ -1,4 +1,4 @@
-const { Replay } = require('../models');
+const { Replay, User} = require('../models');
 
 /**
  * @description 课程回放服务
@@ -108,16 +108,22 @@ exports.getReplayDetail = async (replayId) => {
  * @param {Object} replayData - 回放数据
  * @returns {Promise<Object>} 新创建的回放记录
  */
-exports.addReplay = async (replayData) => {
+exports.addReplay = async (replayData,userInfo) => {
     if (!replayData.title || !replayData.videoUrl || !replayData.coverUrl || !replayData.department) {
         throw new Error('缺少必要的回放数据');
     }
+    const userId = await User.findOne({ where: { stu_id: userInfo.name } });
+    if (!userInfo) {
+        throw new AppError('学生ID不存在', 404, 'STUID_NOT_FOUND');
+    }
     // 创建新的课程回放记录
     const replay = await Replay.create({
+        author_id: userId.id,
+        author: userInfo.displayName,
         title: replayData.title,
         video_url: replayData.videoUrl,
         cover_url: replayData.coverUrl,
-        department: replayData.department,
+        department: replayData.department
     });
     return replay;
 };

@@ -27,6 +27,14 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING
       },
+      cover_width: {
+        allowNull: true,
+        type: Sequelize.INTEGER
+      },
+      cover_height: {
+        allowNull: true,
+        type: Sequelize.INTEGER
+      },
       author: {
         allowNull: false,
         type: Sequelize.STRING

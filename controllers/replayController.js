@@ -1,3 +1,4 @@
+const user = require('../models/user');
 const replayService = require('../services/replayService');
 const AppError = require('../utils/AppError');
 
@@ -65,8 +66,9 @@ exports.getReplayDetail = async (req, res, next) => {
 
 exports.addReplay = async (req, res, next) => {
     try {
+        const userInfo = req.user;
         const replayData = req.body;
-        const result = await replayService.addReplay(replayData);
+        const result = await replayService.addReplay(replayData,userInfo);
         return res.success(result, 201 ,'回放添加成功', 'REPLAY_ADDED');
     } catch (error) {
         next(error); // 交给错误处理中间件
