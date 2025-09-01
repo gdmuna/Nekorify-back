@@ -19,7 +19,7 @@ router.get('/:id', announcementController.getAnnouncementDetail);
 // 新增公告
 router.post('/', permissionGuard({ type: 'announcement', action: 'add', minLevel: 2 }), announcementController.createAnnouncement);
 // 删除公告
-router.delete('/:id', permissionGuard({ type: 'announcement', action: 'delete', minLevel: 2 }), announcementController.deleteAnnouncement);
+router.delete('/', permissionGuard({ type: 'announcement', action: 'delete', minLevel: 2 }), announcementController.deleteAnnouncement);
 // 更新公告
 router.put('/:id', permissionGuard({ type: 'announcement', action: 'update', minLevel: 2 }), announcementController.updateAnnouncement);
 

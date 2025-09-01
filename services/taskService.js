@@ -148,31 +148,48 @@ exports.updateTask = async (params) => {
 /**
  * @description 删除任务接口（暂未实现权限校验）
  * @param {Object} req - 请求对象
- * @param {Object} req.params - 路由参数
- * @param {Object} req.params.id - 任务ID
+ * @param {Object} req.body - 路由参数
+ * @param {Object} req.body.id - 任务ID
  * @param {Object} req.user.position - 用户职位，用于校验修改权限       //暂未实现
  * @returns {Promise<Object>} 删除结果
  */
-exports.deleteTask = async (params) => {
-    const taskId = params.id;
-    // ID校验
-    if (!taskId || isNaN(Number(taskId))) {
+exports.deleteTask = async (body) => {
+    // 兼容单个ID和ID数组
+    const taskIds = Array.isArray(body.id) ? body.id : [body.id];
+    
+    if (taskIds.length === 0) {
         throw new AppError('任务ID无效', 400, 'INVALID_TASK_ID');
     }
+    
     const transaction = await sequelize.transaction(); // 开启事务
     try {
-        // 查找任务
-        const task = await Task.findByPk(taskId);
-        if (!task) {
+        // 查找所有任务
+        const tasks = await Task.findAll({
+            where: { id: taskIds },
+            transaction
+        });
+        
+        if (tasks.length === 0) {
             throw new AppError('任务不存在', 404, 'TASK_NOT_FOUND');
         }
-        // 删除任务
-        await Task.destroy({ where: { id: taskId } }, { transaction: transaction });
+        
+        // 删除所有任务
+        await Task.destroy({ 
+            where: { id: taskIds }, 
+            transaction 
+        });
+        
         // 删除关联记录
-        await TasksUsers.destroy({ where: { task_id: taskId } }, { transaction: transaction });
+        await TasksUsers.destroy({ 
+            where: { task_id: taskIds }, 
+            transaction 
+        });
+        
         await transaction.commit(); // 提交事务
+        
         return {
-            taskId,
+            deletedCount: tasks.length,
+            deletedIds: tasks.map(t => t.id),
         };
     } catch (error) {
         await transaction.rollback(); // 回滚事务

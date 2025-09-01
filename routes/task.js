@@ -15,6 +15,6 @@ router.post('/', permissionGuard({ type: 'task', action: 'add', minLevel: 2 }), 
 // 修改任务
 router.put('/:id', permissionGuard({ type: 'task', action: 'update', minLevel: 2 }), taskController.updateTask);
 // 删除任务
-router.delete('/:id', permissionGuard({ type: 'task', action: 'delete', minLevel: 2 }), taskController.deleteTask);
+router.delete('/', permissionGuard({ type: 'task', action: 'delete', minLevel: 2 }), taskController.deleteTask);
 
 module.exports = router;

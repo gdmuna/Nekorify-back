@@ -152,7 +152,7 @@ exports.updateAnnouncement = async (req, res, next) => {
  */
 exports.deleteAnnouncement = async (req, res, next) => {
     try {
-        const announcementId = req.params.id;
+        const announcementId = req.body.id;
         const author = req.user.displayName;
         const userGroups = req.user.groups;
         const result = await announcementService.deleteAnnouncement(announcementId, author, userGroups);

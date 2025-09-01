@@ -90,7 +90,7 @@ exports.updateArticle = async (req, res, next) => {
 // 删除文章接口(软删除)
 exports.deleteArticle = async (req, res, next) => {
     try {
-        const articleId = req.params.id;
+        const articleId = req.body.id;
         const stuId = req.user.name;
         const userGroups = req.user.groups;
         const result = await articleService.deleteArticle(articleId, stuId, userGroups);
