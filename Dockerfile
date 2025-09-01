@@ -12,4 +12,4 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
-CMD ["npm", "start:prod"]
+CMD ["npm", "run", "start:prod"]
