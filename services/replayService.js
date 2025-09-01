@@ -1,4 +1,4 @@
-const { Replay } = require('../models');
+const { Replay, User} = require('../models');
 
 /**
  * @description 课程回放服务
@@ -108,16 +108,22 @@ exports.getReplayDetail = async (replayId) => {
  * @param {Object} replayData - 回放数据
  * @returns {Promise<Object>} 新创建的回放记录
  */
-exports.addReplay = async (replayData) => {
+exports.addReplay = async (replayData,userInfo) => {
     if (!replayData.title || !replayData.videoUrl || !replayData.coverUrl || !replayData.department) {
         throw new Error('缺少必要的回放数据');
     }
+    const userId = await User.findOne({ where: { stu_id: userInfo.name } });
+    if (!userInfo) {
+        throw new AppError('学生ID不存在', 404, 'STUID_NOT_FOUND');
+    }
     // 创建新的课程回放记录
     const replay = await Replay.create({
+        author_id: userId.id,
+        author: userInfo.displayName,
         title: replayData.title,
         video_url: replayData.videoUrl,
         cover_url: replayData.coverUrl,
-        department: replayData.department,
+        department: replayData.department
     });
     return replay;
 };
@@ -163,14 +169,28 @@ exports.updateReplay = async (replayId, replayData) => {
  * @param {number} replayId - 回放ID
  * @returns {Promise<boolean>} 是否删除成功
  */
-exports.deleteReplay = async (replayId) => {
-    // 查找课程回放记录
-    const replay = await Replay.findByPk(replayId);
-    if (!replay) {
-        return false; // 回放不存在
+exports.deleteReplay = async (replayIds) => {
+    // 兼容单个ID和ID数组
+    const idArray = Array.isArray(replayIds) ? replayIds : [replayIds];
+    
+    if (idArray.length === 0) {
+        throw new AppError('回放ID无效', 400, 'INVALID_REPLAY_ID');
     }
     
-    // 删除课程回放记录
-    await replay.destroy();
-    return true;
+    // 查找所有回放记录
+    const replays = await Replay.findAll({
+        where: { id: idArray }
+    });
+    
+    if (replays.length === 0) {
+        throw new AppError('未找到任何回放', 404, 'REPLAY_NOT_FOUND');
+    }
+    
+    // 批量删除回放
+    await Promise.all(replays.map(replay => replay.destroy()));
+    
+    return {
+        deletedCount: replays.length,
+        deletedIds: replays.map(r => r.id),
+    };
 };

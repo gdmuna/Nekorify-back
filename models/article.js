@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       type: DataTypes.STRING
     },
+    cover_width: {
+      allowNull: true,
+      type: DataTypes.INTEGER
+    },
+    cover_height: {
+      allowNull: true,
+      type: DataTypes.INTEGER
+    },
     author: {
       allowNull: false,
       type: DataTypes.STRING

@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'executor_id',
         otherKey: 'task_id',
       });
+      // 关联回放表
+      this.hasMany(models.Replay, {
+        foreignKey: 'author_id',
+        sourceKey: 'id'
+      });
     }
   }
   User.init({
@@ -45,6 +50,10 @@ module.exports = (sequelize, DataTypes) => {
     sso_id: {
       type: DataTypes.UUID,
       allowNull: false
+    },
+    avatar_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     last_signin_time: {
       allowNull: true,

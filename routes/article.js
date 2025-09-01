@@ -19,6 +19,6 @@ router.post('/', permissionGuard({ type: 'article', action: 'add', minLevel: 3 }
 router.put('/:id', permissionGuard({ type: 'article', action: 'update', minLevel: 3 }), articleController.updateArticle);
 
 // 删除文章（需要权限）
-router.delete('/:id', permissionGuard({ type: 'article', action: 'delete', minLevel: 3 }), articleController.deleteArticle);
+router.delete('/', permissionGuard({ type: 'article', action: 'delete', minLevel: 3 }), articleController.deleteArticle);
 
 module.exports = router;

@@ -14,6 +14,20 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Replay.init({
+    author: {
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    author_id: {
+      allowNull: false,
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'users',
+        key: 'id' 
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE' 
+    },
     title: {
       allowNull: false,
       type: DataTypes.STRING

@@ -9,6 +9,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      author: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      author_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
       title: {
         allowNull: false,
         type: Sequelize.STRING

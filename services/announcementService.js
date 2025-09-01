@@ -305,43 +305,53 @@ exports.updateAnnouncement = async (
  * @returns {Promise<Object>} 删除结果
  */
 exports.deleteAnnouncement = async (
-    announcementId,
+    announcementIds,
     displayName,
     userGroups
 ) => {
-    // 校验ID
-    if (!announcementId || isNaN(Number(announcementId))) {
+    // 兼容单个ID和ID数组
+    const idArray = Array.isArray(announcementIds) 
+        ? announcementIds 
+        : [announcementIds];
+    
+    if (idArray.length === 0) {
         throw new AppError("公告ID无效", 400, "INVALID_ANNOUNCEMENT_ID");
     }
-
-    // 查找公告
-    const announcement = await Announcement.findByPk(announcementId);
-    if (!announcement) {
-        throw new AppError("公告不存在", 404, "ANNOUNCEMENT_NOT_FOUND");
-    }
-
-    // 权限校验：非管理员用户只能删除自己的公告
+    
+    // 权限校验：获取用户权限等级
     const userLevel = Math.min(
         ...userGroups.map((g) => groupMeta[g]?.level ?? 99)
     );
+    
+    // 查找所有公告
+    const announcements = await Announcement.findAll({
+        where: { id: idArray }
+    });
+    
+    if (announcements.length === 0) {
+        throw new AppError("未找到任何公告", 404, "ANNOUNCEMENT_NOT_FOUND");
+    }
+    
+    // 权限校验：如果不是管理员，确保只能删除自己的公告
     if (userLevel !== 1) {
-        // 用户只能删除自己的公告，1级权限管理员无限制
-        const anouncement = await Announcement.findOne({
-            where: {
-                id: announcementId,
-            },
-        });
-        if (anouncement.author !== displayName) {
+        const notOwnedAnnouncements = announcements.filter(
+            ann => ann.author !== displayName
+        );
+        
+        if (notOwnedAnnouncements.length > 0) {
             throw new AppError(
-                "删除者与公告发布者不匹配",
+                "您不能删除他人发布的公告",
                 403,
                 "ANNOUNCEMENT_AUTHOR_MISMATCH"
             );
         }
     }
-
-    // 软删除公告
-    await announcement.destroy();
-
-    return announcement; // 返回被删除的公告信息
+    
+    // 批量软删除公告
+    await Promise.all(announcements.map(announcement => announcement.destroy()));
+    
+    return {
+        deletedCount: announcements.length,
+        deletedIds: announcements.map(ann => ann.id),
+    };
 };
