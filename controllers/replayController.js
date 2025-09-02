@@ -19,7 +19,8 @@ const AppError = require('../utils/AppError');
 
 exports.getReplays = async (req, res, next) => {
     try {
-        const result = await replayService.getReplays(req.query);
+        const userGroups = req.user && req.user.groups ? req.user.groups : [];
+        const result = await replayService.getReplays(req.query, userGroups);
         if (!result.replays || result.replays.length === 0) {
             return res.success(result, 200 ,'没有查询到相关回放', 'NO_REPLAY');
         }
