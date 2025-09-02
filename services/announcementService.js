@@ -337,13 +337,9 @@ exports.updateAnnouncement = async (
 
     // 更新公告
     if (updateData.title !== undefined) announcement.title = updateData.title;
-    if (updateData.coverUrl !== undefined)
-        announcement.cover_url = updateData.coverUrl;
-    if (updateData.author !== undefined) announcement.author = updateData.author;
-    if (updateData.department !== undefined)
-        announcement.department = updateData.department;
-    if (updateData.textUrl !== undefined)
-        announcement.text_md_url = updateData.textUrl;
+    if (updateData.coverUrl !== undefined)announcement.cover_url = updateData.coverUrl;
+    if (updateData.department !== undefined)announcement.department = updateData.department;
+    if (updateData.textUrl !== undefined)announcement.text_md_url = updateData.textUrl;
     if (updateData.status && ['banned'].includes(updateData.status)) {
         //只有1和2级权限用户可以设置文章状态为banned
         if (userLevel > 2) {
