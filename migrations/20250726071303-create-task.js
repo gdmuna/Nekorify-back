@@ -29,6 +29,16 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
+      status: {
+        allowNull: false,
+        defaultValue: 'draft',
+        type: Sequelize.ENUM('draft', 'published', 'archived','banned','deleted')
+      },
+      is_top: {
+        allowNull: false,
+        defaultValue: false,
+        type: Sequelize.BOOLEAN
+      },
       deletedAt: {
         allowNull: true,
         type: Sequelize.DATE

@@ -15,6 +15,7 @@ module.exports = {
       department: `部门${i}`,
       text_md_url: `https://article${i}.md`,
       views: 0,
+      status: 'published',
       createdAt: new Date(),
       updatedAt: new Date(),
     };

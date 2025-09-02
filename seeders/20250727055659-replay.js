@@ -15,6 +15,7 @@ module.exports = {
         video_url: `https://video_url${i}`,
         cover_url: `https://cover_url${i}`,
         views: 0,
+        status: 'published',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
