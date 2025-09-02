@@ -1,4 +1,3 @@
-const { noTrueLogging } = require("sequelize/lib/utils/deprecations");
 const { Announcement, User } = require("../models");
 const AppError = require("../utils/AppError");
 const { isValidUrl } = require("../utils/validUrlUtils");
@@ -17,14 +16,31 @@ const groupMeta = require("../config/groupMeta");
  * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Object>} 公告列表及分页信息
  */
-exports.getAnnouncements = async (query) => {
+exports.getAnnouncements = async (query, userGroups) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
+    const where = {
+        status: 'published'
+    };
+
+    if(query.status && !['draft', 'published', 'archived', 'banned', 'deleted'].includes(query.status)
+    ) {
+        throw new AppError("公告状态无效", 400, "INVALID_STATUS");
+    }
+
+    if (userGroups !== undefined && userGroups.length > 0) {
+        const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+        if (userLevel && userLevel <= 2) {
+            where.status = query.status || 'published';
+        }
+    }
+
     // 设置文章查询条件
     const condition = {
+        where,
         order: [["createdAt", "DESC"]],
         offset,
         limit: pageSize,
@@ -40,6 +56,23 @@ exports.getAnnouncements = async (query) => {
     if (announcements.length === 0) {
         throw new AppError("没有查询到相关公告", 404, "ANNOUNCEMENT_NOT_FOUND");
     }
+
+    // 获取每一位作者的头像URL
+    const authorIds = [
+        ...new Set(announcements.map((ann) => ann.author_id)),
+    ];
+    const users = await User.findAll({
+        where: { id: authorIds },
+        attributes: ["id", "avatar_url"],
+    });
+    const userMap = {};
+    users.forEach((user) => {
+        userMap[user.id] = user.avatar_url;
+    });
+    // 为每篇公告添加作者头像URL
+    announcements.forEach((ann) => {
+        ann.dataValues.author_avatar_url = userMap[ann.author_id] || null;
+    });
 
     return {
         pagination: {
@@ -59,15 +92,28 @@ exports.getAnnouncements = async (query) => {
  * @param {number} req.params.id - 公告ID
  * @returns {Promise<Object>} 公告详情信息
  */
-exports.getAnnouncementDetail = async (announcementId) => {
+exports.getAnnouncementDetail = async (announcementId, userGroups) => {
     // 查询公告
     const announcement = await Announcement.findByPk(announcementId);
     if (!announcement) {
         throw new AppError("公告不存在", 404, "ANNOUNCEMENT_NOT_FOUND");
     }
-    // 浏览量加一
-    announcement.views += 1;
-    await announcement.save();
+    // 权限校验：非已发布状态文章只能1级和2级权限用户查看
+    if (announcement.status !== 'published') {
+        if (userGroups === undefined || userGroups.length === 0) {
+            throw new AppError('无权查看该文章', 403, 'NO_PERMISSION');
+        } else if (userGroups !== undefined && userGroups.length > 0) {
+            const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+            if (userLevel && userLevel > 2) {
+                throw new AppError('无权查看该文章', 403, 'NO_PERMISSION');
+            }
+        }
+    }
+    // 获取作者头像URL
+    const author = await User.findByPk(announcement.author_id);
+    announcement.dataValues.author_avatar_url = author ? author.avatar_url : null;
+
+    await announcement.increment('views'); // 观看数增加
     return announcement;
 };
 
@@ -220,6 +266,7 @@ exports.createAnnouncement = async (announcementData, userInfo) => {
         department: announcementData.department,
         text_md_url: announcementData.textUrl,
         cover_url: announcementData.coverUrl || null,
+        status: announcementData.status || 'draft',
     });
     if (!announcement) {
         throw new AppError("新增公告失败", 500, "ANNOUNCEMENT_CREATION_FAILED");
@@ -282,6 +329,12 @@ exports.updateAnnouncement = async (
         }
     }
 
+    //状态只能更新为draft、published、archived、banned、deleted
+    if (updateData.status && !["draft", "published", "archived", "banned", "deleted"].includes(updateData.status)
+    ) {
+        throw new AppError("公告状态无效", 400, "INVALID_STATUS");
+    }
+
     // 更新公告
     if (updateData.title !== undefined) announcement.title = updateData.title;
     if (updateData.coverUrl !== undefined)
@@ -291,6 +344,13 @@ exports.updateAnnouncement = async (
         announcement.department = updateData.department;
     if (updateData.textUrl !== undefined)
         announcement.text_md_url = updateData.textUrl;
+    if (updateData.status && ['banned'].includes(updateData.status)) {
+        //只有1和2级权限用户可以设置文章状态为banned
+        if (userLevel > 2) {
+            throw new AppError('您没有权限设置文章状态为banned', 403, 'NO_PERMISSION');
+        }
+        announcement.status = updateData.status;
+    }
 
     await announcement.save();
 
@@ -310,34 +370,34 @@ exports.deleteAnnouncement = async (
     userGroups
 ) => {
     // 兼容单个ID和ID数组
-    const idArray = Array.isArray(announcementIds) 
-        ? announcementIds 
+    const idArray = Array.isArray(announcementIds)
+        ? announcementIds
         : [announcementIds];
-    
+
     if (idArray.length === 0) {
         throw new AppError("公告ID无效", 400, "INVALID_ANNOUNCEMENT_ID");
     }
-    
+
     // 权限校验：获取用户权限等级
     const userLevel = Math.min(
         ...userGroups.map((g) => groupMeta[g]?.level ?? 99)
     );
-    
+
     // 查找所有公告
     const announcements = await Announcement.findAll({
         where: { id: idArray }
     });
-    
+
     if (announcements.length === 0) {
         throw new AppError("未找到任何公告", 404, "ANNOUNCEMENT_NOT_FOUND");
     }
-    
+
     // 权限校验：如果不是管理员，确保只能删除自己的公告
     if (userLevel !== 1) {
         const notOwnedAnnouncements = announcements.filter(
             ann => ann.author !== displayName
         );
-        
+
         if (notOwnedAnnouncements.length > 0) {
             throw new AppError(
                 "您不能删除他人发布的公告",
@@ -346,10 +406,10 @@ exports.deleteAnnouncement = async (
             );
         }
     }
-    
+
     // 批量软删除公告
     await Promise.all(announcements.map(announcement => announcement.destroy()));
-    
+
     return {
         deletedCount: announcements.length,
         deletedIds: announcements.map(ann => ann.id),

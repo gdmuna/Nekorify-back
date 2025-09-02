@@ -2,16 +2,17 @@ const express = require('express');
 const router = express.Router();
 const permissionGuard = require('../middlewares/permissionGuard');
 const replayController = require('../controllers/replayController.js');
+const isLogin = require('../middlewares/isLogin');
 /**
  * @description 课程回放路由
  * @module routes/replay
  */
 
 // 获取课程回放列表
-router.get('/', replayController.getReplays);
+router.get('/', isLogin(),replayController.getReplays);
 
 // 获取课程回放详情
-router.get('/:id', replayController.getReplayDetail);
+router.get('/:id', isLogin(),replayController.getReplayDetail);
 
 // 获取当前用户发布的所有课程回放
 router.get('/self', replayController.getCurrentUserReplays);

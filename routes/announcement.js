@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const announcementController = require('../controllers/announcementController.js');
 const permissionGuard = require('../middlewares/permissionGuard.js');
+const isLogin = require('../middlewares/isLogin');
 
 /**
  * @description 公告路由
@@ -9,13 +10,13 @@ const permissionGuard = require('../middlewares/permissionGuard.js');
  */
 
 // 获取公告列表
-router.get('/', announcementController.getAnnouncements);
+router.get('/', isLogin(),announcementController.getAnnouncements);
 // 获取当前用户发布的所有公告
 router.get('/self', announcementController.getCurrentUserAnnouncements);
 // 获取用户发布的所有公告
 router.get('/user', announcementController.getUserAnnouncements);
 // 获取公告详情
-router.get('/:id', announcementController.getAnnouncementDetail);
+router.get('/:id', isLogin(),announcementController.getAnnouncementDetail);
 // 新增公告
 router.post('/', permissionGuard({ type: 'announcement', action: 'add', minLevel: 2 }), announcementController.createAnnouncement);
 // 删除公告

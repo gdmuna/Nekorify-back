@@ -18,7 +18,8 @@ const groupMeta = require('../config/groupMeta');
  */
 exports.getAnnouncements = async (req, res, next) => {
     try {
-        const result = await announcementService.getAnnouncements(req.query);
+        const userGroups = req.user && req.user.groups ? req.user.groups : [];
+        const result = await announcementService.getAnnouncements(req.query, userGroups);
         if (!result.announcements || result.announcements.length === 0) {
             return res.success(result, 404, '没有查询到相关公告', 'ANNOUNCEMENT_NOT_FOUND');
         }
@@ -37,11 +38,12 @@ exports.getAnnouncements = async (req, res, next) => {
  */
 exports.getAnnouncementDetail = async (req, res, next) => {
     try {
+        const userGroups = req.user && req.user.groups ? req.user.groups : [];
         const announcementId = req.params.id;
         if (!announcementId) {
             throw new AppError('公告不存在', 404, 'ANNOUNCEMENT_NOT_FOUND');
         }
-        const result = await announcementService.getAnnouncementDetail(announcementId);
+        const result = await announcementService.getAnnouncementDetail(announcementId, userGroups);
         return res.success(result, 200, '查询成功', 'SUCCESS');
     } catch (error) {
         next(error); // 交给错误处理中间件

@@ -8,7 +8,8 @@ const articleService = require("../services/articleService");
 // 获取文章列表接口
 exports.getAllArticles = async (req, res, next) => {
     try {
-        const result = await articleService.getArticles(req.query);
+        const userGroups = req.user && req.user.groups ? req.user.groups : [];
+        const result = await articleService.getArticles(req.query, userGroups);
         if (!result.articles || result.articles.length === 0) {
             return res.success(result, 404, "没有查询到相关文章", "ARTICLE_NOT_FOUND");
         }
@@ -22,7 +23,8 @@ exports.getAllArticles = async (req, res, next) => {
 exports.getArticleDetail = async (req, res, next) => {
     try {
         const articleId = req.params.id; // 获取文章ID
-        const result = await articleService.getArticleDetail(articleId);
+        const userGroups = req.user && req.user.groups ? req.user.groups : [];
+        const result = await articleService.getArticleDetail(articleId, userGroups);
         if (!result) {
             return res.success(result, 404, "文章不存在", "ARTICLE_NOT_FOUND");
         }
@@ -58,7 +60,7 @@ exports.getCurrentUserArticles = async (req, res, next) => {
 // 新增文章接口
 exports.addArticle = async (req, res, next) => {
     try {
-        const { title, textUrl, coverUrl,coverWidth,coverHeight } = req.body;
+        const { title, textUrl, coverUrl,coverWidth,coverHeight,status } = req.body;
         const userInfo = req.user;
         const result = await articleService.addArticle(
             title,
@@ -66,7 +68,8 @@ exports.addArticle = async (req, res, next) => {
             userInfo,
             coverUrl,
             coverHeight,
-            coverWidth
+            coverWidth,
+            status
         );
         return res.success(result, 201, "文章添加成功", "ARTICLE_ADDED");
     } catch (error) {
