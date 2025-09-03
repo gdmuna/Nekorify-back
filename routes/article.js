@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const permissionGuard = require('../middlewares/permissionGuard');
 const articleController = require('../controllers/articleController');
+const isLogin = require('../middlewares/isLogin');
 
 // 查询接口（无需权限）
-router.get('/', articleController.getAllArticles);
+router.get('/', isLogin(),articleController.getAllArticles);
 
 // 获取当前用户发布的所有文章
 router.get('/self', articleController.getCurrentUserArticles);
 
 // 查询详情接口（无需权限）
-router.get('/:id', articleController.getArticleDetail);
+router.get('/:id', isLogin(),articleController.getArticleDetail);
 
 // 新增文章（需要权限）
 router.post('/', permissionGuard({ type: 'article', action: 'add', minLevel: 3 }), articleController.addArticle);

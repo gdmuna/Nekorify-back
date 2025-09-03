@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const permissionGuard = require('../middlewares/permissionGuard');
 const taskController = require('../controllers/taskController');
+const isLogin = require('../middlewares/isLogin');
 
 /**
  * @description 任务路由
@@ -9,7 +10,7 @@ const taskController = require('../controllers/taskController');
  */
 
 // 获取任务列表
-router.get('/', taskController.getTasks);
+router.get('/', isLogin(),taskController.getTasks);
 // 新增任务
 router.post('/', permissionGuard({ type: 'task', action: 'add', minLevel: 2 }), taskController.createTask);
 // 修改任务

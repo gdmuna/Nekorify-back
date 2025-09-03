@@ -1,6 +1,7 @@
 const { Article, User } = require('../models');
 const AppError = require('../utils/AppError');
 const groupMeta = require('../config/groupMeta');
+const user = require('../models/user');
 
 /**
  * @description 文章服务
@@ -8,7 +9,7 @@ const groupMeta = require('../config/groupMeta');
  */
 
 // 获取文章列表接口
-exports.getArticles = async (query) => {
+exports.getArticles = async (query, userGroups) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
@@ -20,7 +21,15 @@ exports.getArticles = async (query) => {
     }
 
     // 设置查询条件
-    const where = {};
+    const where = {
+        status: 'published', // 默认只查询已发布的文章
+    };
+
+    if(query.status && !['draft', 'published', 'archived', 'banned', 'deleted'].includes(query.status)
+    ) {
+        throw new AppError("公告状态无效", 400, "INVALID_STATUS");
+    }
+
     if (query.stuId) {
         const userInfo = await User.findOne({
             where: { stu_id: query.stuId }
@@ -30,8 +39,15 @@ exports.getArticles = async (query) => {
         }
         where.author_id = userInfo.id; // 使用userId进行查询
     }
+    
 
-    // 设置文章查询条件
+    if (userGroups!==undefined && userGroups.length > 0) {
+        const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+        if (userLevel && userLevel <= 2) {
+            where.status = query.status || 'published'; 
+        }        
+    }
+
     const condition = {
         where,
         order: [['createdAt', 'DESC']],
@@ -46,19 +62,33 @@ exports.getArticles = async (query) => {
     const totalPages = Math.ceil(count / pageSize);
     const articles = rows;
 
+    // 获取每一位作者的头像URL
+    const authorIds = [...new Set(articles.map(article => article.author_id))];
+    const authors = await User.findAll({ where: { id: authorIds } });
+    const authorMap = {};
+    authors.forEach(author => {
+        authorMap[author.id] = author.avatar_url;
+    });
+    // 为每篇文章添加作者头像URL
+    articles.forEach(article => {
+        article.dataValues.author_avatar_url = authorMap[article.author_id] || null;
+    });
+
+    
     return {
         pagination: {
             currentPage,             // 当前页
             pageSize,                // 每页记录数
             totalRecords: count,     // 总记录数
-            totalPages,              // 总页数   
+            totalPages,              // 总页数
+
         },
         articles
     };
 };
 
 // 获取文章详情接口
-exports.getArticleDetail = async (articleId) => {
+exports.getArticleDetail = async (articleId,userGroups) => {
     // 校验ID
     if (!articleId || isNaN(Number(articleId))) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
@@ -68,6 +98,22 @@ exports.getArticleDetail = async (articleId) => {
     if (!article) {
         return null; // 文章不存在
     }
+    // 权限校验：非已发布状态文章只能1级和2级权限用户查看
+    if(article.status !== 'published'){
+        if (userGroups===undefined || userGroups.length === 0 ) {
+            throw new AppError('无权查看该文章', 403, 'NO_PERMISSION');
+        }else if (userGroups !==undefined && userGroups.length > 0) {
+            const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+            if (userLevel && userLevel > 2) {
+                throw new AppError('无权查看该文章', 403, 'NO_PERMISSION');
+            }
+        }
+    }
+    
+    //获取作者头像URL
+    const author = await User.findByPk(article.author_id);
+    article.dataValues.author_avatar_url = author ? author.avatar_url : null;
+
     await article.increment('views'); // 观看数增加
     // 返回文章详情
     return article;
@@ -92,13 +138,13 @@ exports.getCurrentUserArticles = async (userInfo, query = {}) => {
     if (!userInfo || !userInfo.name) {
         throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
     }
-    
+
     // 先查用户表，获取用户主键 id
     const dbUser = await User.findOne({ where: { stu_id: userInfo.name } });
     if (!dbUser) {
         throw new AppError("用户不存在", 404, "USER_NOT_FOUND");
     }
-    
+
     // 用用户 id 查文章表，分页查询
     const { count, rows } = await Article.findAndCountAll({
         where: {
@@ -108,7 +154,7 @@ exports.getCurrentUserArticles = async (userInfo, query = {}) => {
         offset,
         limit: pageSize,
     });
-    
+
     const totalPages = Math.ceil(count / pageSize);
 
     return {
@@ -124,7 +170,7 @@ exports.getCurrentUserArticles = async (userInfo, query = {}) => {
 
 
 // 新增文章接口
-exports.addArticle = async (title, textUrl, userInfo, coverUrl, coverWidth, coverHeight) => {
+exports.addArticle = async (title, textUrl, userInfo, coverUrl, coverWidth, coverHeight, status) => {
     if (!title || !textUrl) {
         throw new AppError('未传入title或textUrl', 400, 'MISSING_TITLE_OR_TEXT_URL');
     }
@@ -135,6 +181,11 @@ exports.addArticle = async (title, textUrl, userInfo, coverUrl, coverWidth, cove
         throw new AppError('学生ID不存在', 404, 'STUID_NOT_FOUND');
     }
 
+    if (status && !['draft', 'published', 'archived'].includes(status)) {
+        throw new AppError('文章状态无效', 400, 'INVALID_STATUS');
+    }
+    
+
     // 创建文章
     const article = await Article.create({
         title,
@@ -144,6 +195,7 @@ exports.addArticle = async (title, textUrl, userInfo, coverUrl, coverWidth, cove
         cover_url: coverUrl,
         cover_width: coverWidth || null,
         cover_height: coverHeight || null,
+        status: status || 'draft',
         department: userInfo.groups[1],
     });
 
@@ -174,6 +226,11 @@ exports.updateArticle = async (articleId, stuId, body, userGroups) => {
         throw new AppError('缺少更新内容', 400, 'MISSING_UPDATE_CONTENT');
     }
 
+    //状态只能更新为draft、published、archived、banned、deleted
+    if (body.status && !['draft', 'published', 'archived', 'banned', 'deleted'].includes(body.status)) {
+        throw new AppError('文章状态无效', 400, 'INVALID_STATUS');
+    }
+
     if (body.textUrl !== undefined) {
         article.text_md_url = body.textUrl;
     }
@@ -182,6 +239,13 @@ exports.updateArticle = async (articleId, stuId, body, userGroups) => {
     }
     if (body.coverUrl !== undefined) {
         article.cover_url = body.coverUrl;
+    }
+    if (body.status && ['banned'].includes(body.status)) {
+        //只有1和2级权限用户可以设置文章状态为banned
+        if (userLevel > 2) {
+            throw new AppError('您没有权限设置文章状态为banned', 403, 'NO_PERMISSION');
+        }
+        article.status = body.status;
     }
     await article.save();
 
@@ -192,42 +256,42 @@ exports.updateArticle = async (articleId, stuId, body, userGroups) => {
 exports.deleteArticle = async (articleIds, stuId, userGroups) => {
     // 兼容单个ID和ID数组
     const idArray = Array.isArray(articleIds) ? articleIds : [articleIds];
-    
+
     if (idArray.length === 0) {
         throw new AppError('文章ID无效', 400, 'INVALID_ARTICLE_ID');
     }
-    
+
     // 查找所有文章
     const articles = await Article.findAll({
         where: { id: idArray }
     });
-    
+
     if (articles.length === 0) {
         throw new AppError('未找到任何文章', 404, 'ARTICLE_NOT_FOUND');
     }
-    
+
     // 权限校验
     const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
-    
+
     if (userLevel !== 1) {
         // 获取用户信息
         const userIds = [...new Set(articles.map(article => article.author_id))];
         const users = await User.findAll({ where: { id: userIds } });
-        
+
         // 检查是否有权限删除所有文章
         const unauthorizedArticles = articles.filter(article => {
             const author = users.find(u => u.id === article.author_id);
             return author && author.stu_id !== stuId;
         });
-        
+
         if (unauthorizedArticles.length > 0) {
             throw new AppError('您不能删除他人发布的文章', 403, 'AUTHOR_MISMATCH');
         }
     }
-    
+
     // 批量软删除文章
     await Promise.all(articles.map(article => article.destroy()));
-    
+
     return {
         deletedCount: articles.length,
         deletedIds: articles.map(a => a.id),

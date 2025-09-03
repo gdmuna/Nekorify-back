@@ -47,6 +47,16 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
       type: DataTypes.INTEGER
     },
+    status: {
+      allowNull: false,
+      defaultValue: 'draft',
+      type: DataTypes.ENUM('draft', 'published', 'archived','banned','deleted')
+    },
+    is_top: {
+      allowNull: false,
+      defaultValue: false,
+      type: DataTypes.BOOLEAN
+    },
     deletedAt: {
       allowNull: true,
       type: DataTypes.DATE

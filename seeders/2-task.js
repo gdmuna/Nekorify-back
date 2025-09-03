@@ -15,6 +15,7 @@ module.exports = {
         ddl: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
+        status:'published',
       };
       tasks.push(task);
     }

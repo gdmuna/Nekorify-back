@@ -32,9 +32,13 @@ exports.handleCallBack = async function(code) {
                     attributes: ['last_signin_time']
                 });
                 userInfo.lastSigninTime = lastSignInTime.last_signin_time;
-                // 如果用户已存在，更新最后登录时间
+                // 如果用户已存在，更新最后登录时间和头像URL    
                 await User.update(
-                    { last_signin_time: new Date() },
+                    {
+                        name: userInfo.displayName,
+                        avatar_url: userInfo.avatar,
+                        last_signin_time: new Date(),
+                    },
                     { where: { stu_id: userInfo.name } }
                 );
             }
@@ -75,6 +79,15 @@ exports.refreshToken = async function(data) {
 exports.getUserInfo = async function(accessToken) {
     try {
         const userInfo = await casdoor.parseJwtToken(accessToken);
+        // 更新用户登录时间，头像等信息
+         await User.update(
+                    {
+                        name: userInfo.displayName,
+                        avatar_url: userInfo.avatar,
+                        last_signin_time: new Date(),
+                    },
+                    { where: { stu_id: userInfo.name } }
+                );
         return (userInfo);
     } catch (error) {
         let msg = error?.response?.data?.error_description || error.message || '刷新AccessToken失败，请稍后再试';

@@ -1,4 +1,5 @@
-const { Replay, User} = require('../models');
+const { Replay, User } = require('../models');
+const groupMeta = require('../config/groupMeta');
 
 /**
  * @description 课程回放服务
@@ -14,19 +15,36 @@ const { Replay, User} = require('../models');
  * @param {number} [req.query.pageSize] - 每页数量（可选）
  * @returns {Promise<Object>} 回放列表及分页信息
  */
-exports.getReplays = async (query) => {
+exports.getReplays = async (query, userGroups) => {
     // 获取分页参数
     const currentPage = Math.abs(Number(query.currentPage)) || 1;
     const pageSize = Math.abs(Number(query.pageSize)) || 10;
     const offset = (currentPage - 1) * pageSize;
 
+    const where = {
+        status: 'published', // 默认只显示已发布的回放
+    };
+    
+    // 如果传入了部门参数，添加部门过滤条件
+    if (query.department) {
+        where.department = query.department;
+    }
+
+    if (userGroups !== undefined && userGroups.length > 0) {
+        const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
+        if (userLevel && userLevel <= 2) {
+            where.status = query.status || 'published';
+        }
+    }
+
     // 设置课程回放查询条件
     const condition = {
+        where,
         order: [['createdAt', 'DESC']],
         offset,
         limit: pageSize,
     };
-    
+
     // 查询课程回放并统计数据
     const { count, rows } = await Replay.findAndCountAll(condition);
 
@@ -108,7 +126,7 @@ exports.getReplayDetail = async (replayId) => {
  * @param {Object} replayData - 回放数据
  * @returns {Promise<Object>} 新创建的回放记录
  */
-exports.addReplay = async (replayData,userInfo) => {
+exports.addReplay = async (replayData, userInfo) => {
     if (!replayData.title || !replayData.videoUrl || !replayData.coverUrl || !replayData.department) {
         throw new Error('缺少必要的回放数据');
     }
@@ -141,7 +159,7 @@ exports.updateReplay = async (replayId, replayData) => {
     if (!replay) {
         return null; // 回放不存在
     }
-    
+
     // 检查必要字段
     if (!replayData || Object.keys(replayData).length === 0) {
         throw new Error('缺少必要的回放数据');
@@ -172,23 +190,23 @@ exports.updateReplay = async (replayId, replayData) => {
 exports.deleteReplay = async (replayIds) => {
     // 兼容单个ID和ID数组
     const idArray = Array.isArray(replayIds) ? replayIds : [replayIds];
-    
+
     if (idArray.length === 0) {
         throw new AppError('回放ID无效', 400, 'INVALID_REPLAY_ID');
     }
-    
+
     // 查找所有回放记录
     const replays = await Replay.findAll({
         where: { id: idArray }
     });
-    
+
     if (replays.length === 0) {
         throw new AppError('未找到任何回放', 404, 'REPLAY_NOT_FOUND');
     }
-    
+
     // 批量删除回放
     await Promise.all(replays.map(replay => replay.destroy()));
-    
+
     return {
         deletedCount: replays.length,
         deletedIds: replays.map(r => r.id),

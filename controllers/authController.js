@@ -13,7 +13,7 @@ const AppError = require('../utils/AppError');
  */
 exports.getLoginUrl = (req, res, next) => {
     try {
-        const loginUrl = authService.getLoginUrl();
+        const loginUrl = authService.getLoginUrl(req);
         console.log('登录地址:', loginUrl);
         res.redirect(loginUrl);
     } catch (error) {

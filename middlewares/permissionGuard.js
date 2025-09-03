@@ -27,6 +27,11 @@ module.exports = function permission(options = {}) {
         if (!service) throw new AppError("未知的操作类型", 400, "UNKNOWN_TYPE");
 
         try {
+            if(!req.user)
+            {
+                next();
+                return;
+            }
             // 获取用户信息
             const { type, action, minLevel = 99 } = options;
             const userGroups = req.user.groups || [];
