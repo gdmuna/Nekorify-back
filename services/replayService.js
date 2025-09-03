@@ -1,5 +1,5 @@
 const { Replay, User } = require('../models');
-const { groupMeta } = require('../config/groupMeta');
+const groupMeta = require('../config/groupMeta');
 
 /**
  * @description 课程回放服务
