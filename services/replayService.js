@@ -1,5 +1,6 @@
 const { Replay, User } = require('../models');
 const groupMeta = require('../config/groupMeta');
+const AppError = require('../utils/AppError');
 
 /**
  * @description 课程回放服务
@@ -134,6 +135,9 @@ exports.addReplay = async (replayData, userInfo) => {
     if (!userInfo) {
         throw new AppError('学生ID不存在', 404, 'STUID_NOT_FOUND');
     }
+    if (replayData.status && !['published', 'draft', 'archived'].includes(replayData.status)) {
+        throw new AppError('无效的回放状态', 400, 'INVALID_STATUS');
+    }
     // 创建新的课程回放记录
     const replay = await Replay.create({
         author_id: userId.id,
@@ -141,7 +145,8 @@ exports.addReplay = async (replayData, userInfo) => {
         title: replayData.title,
         video_url: replayData.videoUrl,
         cover_url: replayData.coverUrl,
-        department: replayData.department
+        department: replayData.department,
+        status: replayData.status || 'draft', // 默认状态为草稿
     });
     return replay;
 };
@@ -164,6 +169,11 @@ exports.updateReplay = async (replayId, replayData) => {
     if (!replayData || Object.keys(replayData).length === 0) {
         throw new Error('缺少必要的回放数据');
     }
+    //状态只能更新为draft、published、archived、banned、deleted
+    if (replayData.status && !["draft", "published", "archived", "banned", "deleted"].includes(replayData.status)
+    ) {
+        throw new AppError("回放状态无效", 400, "INVALID_STATUS");
+    }
 
     // 更新课程回放记录
     if (replayData.title !== undefined) {
@@ -178,6 +188,13 @@ exports.updateReplay = async (replayId, replayData) => {
     if (replayData.department !== undefined) {
         replay.department = replayData.department;
     }
+    if (replayData.status !== undefined) {
+        if (replayData.status === 'banned' && userLevel >2) {
+            throw new AppError('无权将回放状态更新为封禁', 403, 'NO_PERMISSION');
+        }
+        replay.status = replayData.status;
+    }
+
     await replay.save();
     return replay;
 };
