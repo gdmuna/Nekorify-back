@@ -240,13 +240,13 @@ exports.updateArticle = async (articleId, stuId, body, userGroups) => {
     if (body.coverUrl !== undefined) {
         article.cover_url = body.coverUrl;
     }
-    if (body.status && ['banned'].includes(body.status)) {
-        //只有1和2级权限用户可以设置文章状态为banned
-        if (userLevel > 2) {
-            throw new AppError('您没有权限设置文章状态为banned', 403, 'NO_PERMISSION');
+    if (body.status !== undefined) {
+        if (body.status === 'banned' && userLevel >2) {
+            throw new AppError('无权将文章状态更新为封禁', 403, 'NO_PERMISSION');
         }
         article.status = body.status;
     }
+
     await article.save();
 
     return article;

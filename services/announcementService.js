@@ -340,10 +340,9 @@ exports.updateAnnouncement = async (
     if (updateData.coverUrl !== undefined)announcement.cover_url = updateData.coverUrl;
     if (updateData.department !== undefined)announcement.department = updateData.department;
     if (updateData.textUrl !== undefined)announcement.text_md_url = updateData.textUrl;
-    if (updateData.status && ['banned'].includes(updateData.status)) {
-        //只有1和2级权限用户可以设置文章状态为banned
-        if (userLevel > 2) {
-            throw new AppError('您没有权限设置文章状态为banned', 403, 'NO_PERMISSION');
+    if (updateData.status !== undefined) {
+        if (updateData.status === 'banned' && userLevel >2) {
+            throw new AppError('无权将公告状态更新为封禁', 403, 'NO_PERMISSION');
         }
         announcement.status = updateData.status;
     }
