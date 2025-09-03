@@ -21,9 +21,13 @@ exports.getReplays = async (query, userGroups) => {
     const offset = (currentPage - 1) * pageSize;
 
     const where = {
-        department: query.department || undefined, // 过滤开课部门，若未提供则不过滤
         status: 'published', // 默认只显示已发布的回放
     };
+    
+    // 如果传入了部门参数，添加部门过滤条件
+    if (query.department) {
+        where.department = query.department;
+    }
 
     if (userGroups !== undefined && userGroups.length > 0) {
         const userLevel = Math.min(...userGroups.map(g => (groupMeta[g]?.level ?? 99)));
