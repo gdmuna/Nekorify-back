@@ -32,7 +32,7 @@ exports.getLoginUrl = (req) => {
         `&response_type=code` +
         `&redirect_uri=${encodeURIComponent(redirectUri)}` +
         `&scope=read` +
-        `&state=${encodeURIComponent(req.query.target || req.headers.referer || '/')}`
+        `&state=${ req.query.target || encodeURIComponent(req.headers.referer || '/') }`
     );
 };
 
